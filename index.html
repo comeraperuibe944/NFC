@@ -3,12 +3,50 @@
 <title>NFC Access</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",system-ui,Arial,sans-serif}
-body{height:100vh;background:radial-gradient(circle at 20% 20%,#0f172a,#020617);color:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
-.bg{position:fixed;inset:0;background:linear-gradient(-45deg,#0ea5e9,#6366f1,#22d3ee,#3b82f6);background-size:400% 400%;animation:floatBg 12s ease infinite;opacity:.08;z-index:-1}
-@keyframes floatBg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+body{height:100vh;background:#020617;color:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
+
+/* Fundo nanotecnologia */
+.bg{
+  position:fixed;inset:0;z-index:-2;
+  background:radial-gradient(circle at 30% 30%,#0f172a,#000);
+  overflow:hidden;
+}
+.grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px),
+                    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  animation:gridMove 10s linear infinite;
+}
+@keyframes gridMove{
+  0%{background-position:0 0,0 0}
+  100%{background-position:40px 40px,40px 40px}
+}
+
+/* Feixe de luz */
+.beam{
+  position:absolute;top:-50%;left:-50%;
+  width:200%;height:200%;
+  background:linear-gradient(115deg,transparent 45%,rgba(0,242,255,.08) 50%,transparent 55%);
+  animation:beamMove 6s ease-in-out infinite;
+  z-index:-1;
+  transform:rotate(0deg);
+}
+@keyframes beamMove{
+  0%,100%{transform:translateX(-30%) translateY(-30%) rotate(25deg)}
+  50%{transform:translateX(30%) translateY(30%) rotate(25deg)}
+}
+
+/* Título e botões */
 h1{font-size:1.8rem;margin-bottom:.5rem;letter-spacing:.05em}
 p{color:#9ca3af;font-size:.95rem;margin-bottom:1.8rem}
-button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 25px rgba(59,130,246,.35);touch-action:manipulation}
+button{
+  background:linear-gradient(90deg,#06b6d4,#3b82f6);
+  color:#fff;border:none;border-radius:1.5rem;
+  padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:transform .2s,box-shadow .2s;
+  box-shadow:0 6px 25px rgba(59,130,246,.35);touch-action:manipulation
+}
 button:active{transform:scale(.96)}
 #modeBtn{margin-top:1rem;background:linear-gradient(90deg,#22c55e,#15803d)}
 #msg{margin-top:2rem;min-height:2.5rem;font-size:1.2rem;font-weight:600;opacity:0;transition:opacity .3s ease,transform .3s ease}
@@ -17,30 +55,56 @@ button:active{transform:scale(.96)}
 .err{color:#ef4444}
 @keyframes pulse{to{transform:scale(1.08);opacity:.8}}
 
-.splash{position:fixed;inset:0;background:linear-gradient(180deg,#1e3a8a,#1e40af,#0f172a);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:10;animation:fadeIn .8s ease}
+/* Splash Screen */
+.splash{position:fixed;inset:0;background:linear-gradient(180deg,#1e3a8a,#1e40af,#0f172a);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;z-index:10;animation:fadeIn .8s ease}
 .splash h1{font-size:2rem;margin-bottom:1rem}
-.splash button{margin-top:2rem;padding:1.2rem 2.8rem;font-size:1.1rem;border-radius:2rem;background:linear-gradient(90deg,#06b6d4,#3b82f6);animation:pulseBtn 2s infinite alternate}
+.splash button{margin-top:2rem;padding:1.2rem 2.8rem;font-size:1.1rem;
+  border-radius:2rem;background:linear-gradient(90deg,#06b6d4,#3b82f6);
+  animation:pulseBtn 2s infinite alternate}
 @keyframes pulseBtn{to{transform:scale(1.05);box-shadow:0 0 20px rgba(59,130,246,.4)}}
+.wave{width:70px;height:70px;border:4px solid rgba(255,255,255,.2);
+  border-top-color:#38bdf8;border-radius:50%;animation:spin 1.4s linear infinite;margin-bottom:1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 @keyframes fadeOut{to{opacity:0;transform:scale(1.05)}}
-.wave{width:70px;height:70px;border:4px solid rgba(255,255,255,.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1.4s linear infinite;margin-bottom:1rem}
-@keyframes spin{to{transform:rotate(360deg)}}
 
-.welcome{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.9);transition:all .5s ease;z-index:9;pointer-events:none}
+/* Tela de boas-vindas */
+.welcome{position:fixed;inset:0;background:rgba(0,0,0,.7);
+  backdrop-filter:blur(10px);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;opacity:0;transform:scale(.9);
+  transition:all .5s ease;z-index:9;pointer-events:none}
 .welcome.show{opacity:1;transform:scale(1)}
-.checkmark{width:80px;height:80px;border-radius:50%;border:4px solid #22c55e;position:relative;animation:popIn .5s ease forwards}
-.checkmark::after{content:"";position:absolute;left:22px;top:35px;width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;transform:rotate(45deg) scale(0);transform-origin:bottom left;animation:check .5s ease .3s forwards}
+.checkmark{width:80px;height:80px;border-radius:50%;
+  border:4px solid #22c55e;position:relative;animation:popIn .5s ease forwards}
+.checkmark::after{content:"";position:absolute;left:22px;top:35px;
+  width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;
+  transform:rotate(45deg) scale(0);transform-origin:bottom left;
+  animation:check .5s ease .3s forwards}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes check{to{transform:rotate(45deg) scale(1)}}
 .welcome h2{margin-top:2rem;font-size:1.6rem;color:#22c55e;font-weight:700;animation:fadeIn .8s ease}
+
+/* Animação de brilho nos botões e fundo */
+.bg::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.08) 50%,transparent 100%);
+  animation:shine 10s linear infinite;
+  mix-blend-mode:overlay;
+}
+@keyframes shine{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
 
 audio{display:none}
 </style>
 
 <body>
-<div class="bg"></div>
+<div class="bg"><div class="grid"></div><div class="beam"></div></div>
 
-<!-- Splash Screen -->
+<!-- Splash -->
 <div class="splash" id="splash">
   <div class="wave"></div>
   <h1>🔐 NFC Access</h1>
@@ -118,7 +182,7 @@ async function startNFC(){
   }
 }
 
-// Splash inicia o NFC
+// Splash -> inicia leitura NFC
 $('allowBtn').onclick=()=>{
   $('allowBtn').disabled=true;
   $('allowBtn').style.opacity='0.5';
