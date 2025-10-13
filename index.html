@@ -1,104 +1,102 @@
-<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NFC Access</title><style>*{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",system-ui,Arial,sans-serif}html,body{height:100%}body{background:radial-gradient(circle at 20% 20%,#0f172a,#020617);color:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;-webkit-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none} .bg{position:fixed;inset:0;background:linear-gradient(-45deg,#0ea5e9,#6366f1,#22d3ee,#3b82f6);background-size:400% 400%;animation:floatBg 12s ease infinite;opacity:.08;z-index:-1}@keyframes floatBg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}h1{font-size:1.8rem;margin-bottom:.5rem;letter-spacing:.05em}p{color:#9ca3af;font-size:.95rem;margin-bottom:1.8rem}button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.1rem 2.2rem;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 6px 25px rgba(59,130,246,.28);touch-action:manipulation;pointer-events:auto}button:active{transform:scale(.96)}#modeBtn{margin-top:1rem;background:linear-gradient(90deg,#22c55e,#15803d);position:relative;z-index:9999;pointer-events:auto}#modeIndicator{display:inline-block;margin-left:.6rem;font-weight:800}#msg{margin-top:2rem;min-height:2.2rem;font-size:1.15rem;font-weight:600;opacity:0;transition:opacity .28s,transform .28s}#msg.show{opacity:1;transform:scale(1.03)}.ok{color:#22c55e}.err{color:#ef4444}.splash{position:fixed;inset:0;background:linear-gradient(180deg,#1e3a8a,#1e40af,#0f172a);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:20;animation:fadeIn .6s ease}.splash h1{font-size:2rem;margin-bottom:1rem}.splash button{margin-top:2rem;padding:1.1rem 2.4rem;border-radius:2rem;background:linear-gradient(90deg,#06b6d4,#3b82f6);animation:pulseBtn 2s infinite alternate}@keyframes pulseBtn{to{transform:scale(1.04);box-shadow:0 0 20px rgba(59,130,246,.36)}}@keyframes fadeIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}@keyframes fadeOut{to{opacity:0;transform:scale(1.02)}}.wave{width:70px;height:70px;border:4px solid rgba(255,255,255,.18);border-top-color:#38bdf8;border-radius:50%;animation:spin 1.4s linear infinite;margin-bottom:1rem}@keyframes spin{to{transform:rotate(360deg)}}.welcome{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.95);transition:all .45s ease;z-index:30}.welcome.show{opacity:1;transform:scale(1)}.checkmark{width:80px;height:80px;border-radius:50%;border:4px solid #22c55e;position:relative;animation:popIn .45s ease forwards}.checkmark::after{content:"";position:absolute;left:22px;top:35px;width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;transform:rotate(45deg) scale(0);transform-origin:bottom left;animation:check .45s ease .22s forwards}@keyframes popIn{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}@keyframes check{to{transform:rotate(45deg) scale(1)}}audio{display:none}</style><body><div class="bg"></div>
-
-<!-- Splash -->
-<div class="splash" id="splash" role="dialog" aria-modal="true">
-  <div class="wave" aria-hidden="true"></div>
-  <h1>🔐 NFC Access</h1>
-  <p>Precisamos da sua permissão para acessar o sensor NFC</p>
-  <button id="allowBtn" type="button">Permitir Acesso</button>
-</div>
-
-<!-- Main -->
-<main style="opacity:0;transition:opacity .6s ease;">
-  <h1>🔐 NFC Access</h1>
-  <p id="info">Aproxime seu cartão NFC</p>
-  <div style="display:flex;gap:.6rem;align-items:center;justify-content:center">
-    <button id="modeBtn" type="button" aria-pressed="false">Modo:<span id="modeIndicator">Acesso</span></button>
-  </div>
-  <div id="msg" role="status" aria-live="polite"></div>
-</main>
-
-<!-- Welcome -->
-<div class="welcome" id="welcome" aria-hidden="true"><div class="checkmark" aria-hidden="true"></div><h2 id="welcomeText">Bem-vindo!</h2></div>
-
-<!-- Sons -->
-<audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
-<audio id="plim" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg" preload="auto"></audio>
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NFC Access</title><style>/* compact, mobile-first */*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%}body{margin:0;font-family:system-ui,Arial;background:radial-gradient(circle at top,#071026,#020617);color:#e6eef6;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;user-select:none;-webkit-user-select:none}h1{font-size:18px;margin:0 0 8px}p{margin:0 0 14px;color:#94a3b8;font-size:13px}button{appearance:none;border:0;padding:12px 18px;border-radius:12px;font-weight:700;background:linear-gradient(90deg,#22d3ee,#3b82f6);color:#021226;box-shadow:0 8px 30px rgba(59,130,246,.12);cursor:pointer;touch-action:manipulation}button:active{transform:translateY(1px)}#modeBtn{background:linear-gradient(90deg,#34d399,#10b981);margin-top:12px}#msg{margin-top:14px;min-height:36px;font-weight:700}small{display:block;color:#94a3b8;margin-top:8px;font-size:12px}kbd{background:rgba(255,255,255,.03);padding:6px 8px;border-radius:8px;font-weight:800;color:#dbeafe}#floating{position:fixed;top:18px;right:18px;z-index:9999}#floating button{padding:10px 12px;border-radius:10px;font-size:13px}@media(min-width:520px){body{padding:40px}} </style><body>
+<h1>🔐 NFC Access</h1>
+<p id="info">Abra a página e pressione <kbd>Iniciar Leitura</kbd> (necessário para permitir NFC)</p>
+<button id="startBtn">Iniciar Leitura</button>
+<button id="modeBtn">Modo: Acesso</button>
+<div id="msg"></div>
+<small>Funciona em Chrome Android (HTTPS ou localhost)</small>
 
 <script>
 (() => {
   const $ = id => document.getElementById(id);
   const LS = 'nfc_users_v1';
-  let mode = 'acesso', reader = null;
+  let reader = null;
+  let scanning = false;
+  let mode = 'acesso'; // 'acesso' | 'cadastro'
 
-  const modeBtn = $('modeBtn');
-  const modeIndicator = $('modeIndicator');
-
-  function db(){ try{ return JSON.parse(localStorage.getItem(LS)||'{}') }catch(e){ return {} } }
+  function db(){ try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
   function save(d){ localStorage.setItem(LS, JSON.stringify(d)) }
-  function showMsg(txt, cls=''){ const el = $('msg'); el.className = cls ? ('show '+cls) : 'show'; el.textContent = txt }
-  function playSound(id){ const a = $(id); if(a){ a.currentTime = 0; a.play().catch(()=>{}) } }
-  function showWelcome(txt){ $('welcomeText').textContent = txt; const w = $('welcome'); w.classList.add('show'); setTimeout(()=>w.classList.remove('show'), 2200) }
+  function show(txt, cls=''){ const m = $('msg'); m.textContent = txt; m.className = cls || ''; }
+  function setModeUI(){ $('modeBtn').textContent = 'Modo: ' + (mode==='acesso' ? 'Acesso' : 'Cadastro'); }
 
-  // Toggle logic (robust): use pointerdown to prevent long-press menus, pointerup capture to ensure we catch it early.
-  const toggle = (ev) => {
-    if (ev && ev.cancelable) { ev.preventDefault(); }
+  // toggles mode; bind to multiple events to be robust on mobile
+  function toggleMode(e){
+    if(e && e.preventDefault) e.preventDefault();
     mode = (mode === 'acesso') ? 'cadastro' : 'acesso';
-    modeIndicator.textContent = (mode === 'acesso') ? 'Acesso' : 'Cadastro';
-    modeBtn.setAttribute('aria-pressed', mode==='cadastro');
-    showMsg('Modo alterado para ' + mode);
-  };
+    setModeUI();
+    show('Modo alterado para '+mode);
+  }
+  $('modeBtn').addEventListener('click', toggleMode, {passive:true});
+  $('modeBtn').addEventListener('touchstart', (e)=>{ e.preventDefault(); toggleMode(e); }, {passive:false});
 
-  // handle different event types to maximize compatibility
-  modeBtn.addEventListener('pointerdown', (e)=>{ e.preventDefault(); }, {passive:false});
-  modeBtn.addEventListener('pointerup', (e)=>{ e.stopPropagation(); toggle(e); }, {passive:false});
-  modeBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); }, {passive:false});
-  modeBtn.addEventListener('click', (e)=>{ e.preventDefault(); toggle(e); });
-
-  // Also add a document-level pointerup in capture to ensure we get the touch even if something else intercepts
-  document.addEventListener('pointerup', (e) => {
-    // if the pointerup happened inside modeBtn element, let modeBtn handle it (we already toggle there)
-    if (modeBtn.contains(e.target)) return;
-  }, true);
-
-  // Prevent selection/popups from long-press globally
-  document.addEventListener('selectionchange', ()=>{ const s=document.getSelection(); if(s && s.toString().length) s.removeAllRanges(); });
-
-  // Splash -> request NFC permission and start continuous scan
-  $('allowBtn').addEventListener('click', async () => {
-    if (!('NDEFReader' in window)) { alert('Seu navegador não suporta Web NFC. Use Chrome em Android com HTTPS.'); return; }
-    try {
+  // start/stop scanning (start must be inside user gesture)
+  async function startScan(){
+    if(!('NDEFReader' in window)){ show('NFC não suportado neste navegador','err'); return; }
+    try{
       reader = new NDEFReader();
-      await reader.scan(); // must be in user gesture
-      const s = $('splash'); s.style.animation = 'fadeOut .35s forwards';
-      setTimeout(()=>{ s.remove(); document.querySelector('main').style.opacity = 1; }, 380);
-      $('info').textContent = 'Lendo NFC continuamente...';
-
-      reader.addEventListener('readingerror', ()=>console.warn('Erro de leitura NFC'));
-      reader.addEventListener('reading', async evt => {
+      await reader.scan(); // permission prompt happens here
+      scanning = true;
+      $('startBtn').textContent = 'Parar Leitura';
+      show('Aproxime um cartão — leitura contínua');
+      $('info').textContent = 'Leitura ativa — aproxime o cartão';
+      // keep onreading handler lightweight to avoid blocking UI
+      reader.onreadingerror = ()=>console.warn('NFC reading error');
+      reader.onreading = async (evt) => {
+        // get stable id (serialNumber preferred)
         const id = evt.serialNumber || ('id-'+Math.random().toString(36).slice(2,10));
         const users = db();
-        if (mode === 'cadastro') {
+        if(mode==='cadastro'){
+          // small synchronous prompt is acceptable here (user intent)
           const nome = prompt('Nome para cadastrar?');
-          if (!nome) { showMsg('Cadastro cancelado','err'); return; }
-          users[id] = nome; save(users);
-          showMsg('✅ '+nome+' cadastrado!','ok'); playSound('plim'); showWelcome('Cadastrado!');
+          if(!nome){ show('Cadastro cancelado','err'); return; }
+          users[id] = nome;
+          save(users);
+          show('✅ '+nome+' cadastrado!');
+          // keep scanning (do not null reader.onreading)
         } else {
-          if (users[id]) {
-            showMsg('✅ Bem-vindo, '+users[id]+'!','ok'); playSound('plim'); playSound('beep'); showWelcome('Bem-vindo '+users[id]+'!');
+          if(users[id]){
+            show('✅ Bem-vindo, '+users[id]+'!');
           } else {
-            showMsg('⛔ Cartão não registrado','err'); playSound('beep'); showWelcome('Acesso Negado');
+            show('⛔ Cartão não registrado','err');
           }
         }
-      });
-    } catch (err) {
+      };
+    }catch(err){
       console.error(err);
-      alert('Permissão negada ou erro ao acessar o NFC.');
+      show('Permissão negada ou erro NFC','err');
+      // ensure ui state consistent
+      scanning = false;
+      $('startBtn').textContent = 'Iniciar Leitura';
+      $('info').textContent = 'Aproxime seu cartão NFC';
     }
-  });
+  }
 
-  // keyboard accessibility
-  modeBtn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(e); } });
+  function stopScan(){
+    try{
+      // NDEFReader has no stop method, but clearing handlers and dropping reference is best effort
+      if(reader){
+        reader.onreading = null;
+        reader.onreadingerror = null;
+        reader = null;
+      }
+    }catch(e){console.warn(e)}
+    scanning = false;
+    $('startBtn').textContent = 'Iniciar Leitura';
+    $('info').textContent = 'Leitura pausada';
+    show('Leitura parada');
+  }
 
+  $('startBtn').addEventListener('click', async (e) => {
+    e.preventDefault();
+    // if scanning, stop; else start (this click is the required user gesture)
+    if(scanning){ stopScan(); return; }
+    // slight delay to allow UI update before permission prompt
+    await startScan();
+  }, {passive:false});
+
+  // initialize UI
+  setModeUI();
+  show('Pronto');
 })();
-</script></body></html>
+</script>
+</body></html>
