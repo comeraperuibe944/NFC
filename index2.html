@@ -1,0 +1,34 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NFC Access</title><style>
+body{margin:0;font-family:system-ui,Arial;background:radial-gradient(circle at top,#111827,#030712);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;overflow:hidden}
+h1{font-size:1.4rem;margin-bottom:.5rem}
+p{color:#9ca3af;font-size:.9rem;margin:0 0 1.5rem}
+button{border:0;outline:0;padding:1rem 2rem;border-radius:1rem;font-weight:600;color:#111;background:linear-gradient(90deg,#22d3ee,#3b82f6);box-shadow:0 6px 20px rgba(59,130,246,.3);transition:.2s;cursor:pointer}
+button:active{transform:scale(.96)}
+#modeBtn{background:linear-gradient(90deg,#34d399,#10b981);margin-top:1rem}
+#msg{margin-top:2rem;font-size:1.2rem;font-weight:600;min-height:2rem}
+.ok{color:#10b981;animation:pulse 1s infinite alternate}
+.err{color:#ef4444}
+@keyframes pulse{to{opacity:.5;transform:scale(1.05)}}
+.fade{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style><body>
+<h1>🔐 NFC Access</h1>
+<p id="info">Aproxime seu cartão NFC</p>
+<button id="startBtn">Iniciar Leitura</button>
+<button id="modeBtn">Modo: Acesso</button>
+<div id="msg" class="fade"></div>
+<script>
+(()=>{const $=id=>document.getElementById(id);let mode='acesso',reader;const LS='nfc_users_v1';
+function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
+function save(d){localStorage.setItem(LS,JSON.stringify(d))}
+function show(t,cls=''){const m=$('msg');m.className='fade '+cls;m.textContent=t}
+$('modeBtn').onclick=()=>{mode=mode==='acesso'?'cadastro':'acesso';$('modeBtn').textContent='Modo: '+(mode==='acesso'?'Acesso':'Cadastro');show('Modo alterado para '+mode)}
+$('startBtn').onclick=async()=>{if(!('NDEFReader'in window)){show('NFC não suportado','err');return}
+try{reader=new NDEFReader();await reader.scan();show('Aproxime o cartão...');reader.onreading=async e=>{const id=e.serialNumber||Math.random().toString(36).slice(2,8);const users=db();
+if(mode==='cadastro'){const nome=prompt('Nome para cadastrar?');if(!nome){show('Cancelado','err');return}
+users[id]=nome;save(users);show('✅ '+nome+' cadastrado!','ok')}
+else{if(users[id])show('✅ Bem-vindo, '+users[id]+'!','ok');else show('⛔ Cartão não registrado','err')}
+reader.onreading=null;}}catch(err){show('Permissão negada ou erro NFC','err');console.error(err)}}
+})();
+</script>
+</body></html>
