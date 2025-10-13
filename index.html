@@ -20,9 +20,9 @@ p{color:#9ca3af;font-size:.95rem;margin-bottom:1.8rem}
 button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 25px rgba(59,130,246,.35);touch-action:manipulation}
 button:active{transform:scale(.96)}
 #modeBtn{margin-top:1rem;background:linear-gradient(90deg,#22c55e,#15803d)}
-#msg{margin-top:2rem;min-height:2.5rem;font-size:1.2rem;font-weight:600;opacity:0;transition:opacity 1.5s ease,transform 1s ease}
+#msg{margin-top:2rem;min-height:2.5rem;font-size:1.2rem;font-weight:600;opacity:0;transition:opacity 1s ease,transform .6s ease}
 #msg.show{opacity:1;transform:scale(1.05)}
-.ok{color:#22c55e;animation:pulse 1.5s infinite alternate}
+.ok{color:#22c55e;animation:pulse 1.2s infinite alternate}
 .err{color:#ef4444}
 @keyframes pulse{to{transform:scale(1.08);opacity:.8}}
 
@@ -39,15 +39,15 @@ button:active{transform:scale(.96)}
 /* Tela de boas-vindas */
 .welcome{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.9);transition:all .6s ease;z-index:9;pointer-events:none}
 .welcome.show{opacity:1;transform:scale(1)}
-.icon{width:90px;height:90px;border-radius:50%;border:4px solid;display:flex;align-items:center;justify-content:center;font-size:3rem;animation:popIn .5s ease forwards}
-.icon.ok{border-color:#22c55e;color:#22c55e}
-.icon.err{border-color:#ef4444;color:#ef4444}
+.icon{width:90px;height:90px;border-radius:50%;border:4px solid #22c55e;position:relative;animation:popIn .5s ease forwards}
+.icon::after{content:"";position:absolute;left:22px;top:35px;width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;transform:rotate(45deg) scale(0);transform-origin:bottom left;animation:check .5s ease .3s forwards}
+.icon.err{border-color:#ef4444}
+.icon.err::after{content:"";left:28px;top:25px;width:30px;height:30px;border:none;transform:rotate(45deg);background:linear-gradient(to bottom right,transparent 45%,#ef4444 45%,#ef4444 55%,transparent 55%)}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-.welcome h2{margin-top:2.5rem;font-size:1.6rem;font-weight:700;animation:fadeIn .8s ease}
-.welcome.ok h2{color:#22c55e}
-.welcome.err h2{color:#ef4444}
+@keyframes check{to{transform:rotate(45deg) scale(1)}}
+.welcome h2{margin-top:2.5rem;font-size:1.6rem;font-weight:700}
 
-/* Brilho e textura */
+/* Animação de brilho */
 .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.08) 50%,transparent 100%);animation:shine 10s linear infinite;mix-blend-mode:overlay}
 @keyframes shine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 
@@ -75,7 +75,7 @@ audio{display:none}
 
 <!-- Tela de boas-vindas -->
 <div class="welcome" id="welcome">
-  <div class="icon" id="welcomeIcon">✔</div>
+  <div class="icon"></div>
   <h2 id="welcomeText">Bem-vindo!</h2>
 </div>
 
@@ -83,51 +83,44 @@ audio{display:none}
 <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
 <script>
-(()=>{
-const $=id=>document.getElementById(id);
-let mode='acesso', reader, msgTimer;
+(()=>{const $=id=>document.getElementById(id);
+let mode='acesso',reader,msgTimer;
 const LS='nfc_users_v1';
 function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
 function save(d){localStorage.setItem(LS,JSON.stringify(d))}
 
-// Mostra mensagem com sumiço lento
-function showMsg(txt,cls=''){
-  const el=$('msg');
-  el.className='show '+cls;
-  el.textContent=txt;
-  clearTimeout(msgTimer);
-  msgTimer=setTimeout(()=>{el.style.opacity='0';},8000); // demora mais
-  setTimeout(()=>{el.className='';el.textContent='';el.style.opacity='';},9500);
+function showMsg(txt,cls=''){const el=$('msg');el.className='show '+cls;el.textContent=txt;
+clearTimeout(msgTimer);
+msgTimer=setTimeout(()=>{el.style.opacity='0';},6000);
+setTimeout(()=>{el.className='';el.textContent='';el.style.opacity='';},7000);
 }
 
 function playSound(id){const a=$(id);a.currentTime=0;a.play().catch(()=>{})}
 function vibrate(ms){if('vibrate'in navigator)navigator.vibrate(ms);}
-function showWelcome(txt,type='ok'){
-  const w=$('welcome'), i=$('welcomeIcon');
-  w.className='welcome show '+type;
-  i.className='icon '+type;
-  i.textContent= type==='ok'?'✔':'✖';
-  $('welcomeText').textContent=txt;
-  setTimeout(()=>w.classList.remove('show'),3000);
+
+function showWelcome(txt,isError=false){
+  const w=$('welcome'),icon=w.querySelector('.icon'),text=$('welcomeText');
+  icon.className=isError?'icon err':'icon';
+  text.textContent=txt;
+  text.style.color=isError?'#ef4444':'#22c55e';
+  w.classList.add('show');
+  setTimeout(()=>w.classList.remove('show'),2500);
 }
 
-// Alternar modo
+// alternar modo
 function toggleMode(){
   mode=mode==='acesso'?'cadastro':'acesso';
   $('modeBtn').textContent='Modo: '+(mode==='acesso'?'Acesso':'Cadastro');
   showMsg('Modo alterado para '+mode);
 }
 $('modeBtn').addEventListener('click',toggleMode);
-$('modeBtn').addEventListener('touchstart',e=>{e.preventDefault();toggleMode();});
 
-// Leitura NFC
+// leitura NFC
 async function startNFC(){
   if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
   try{
-    reader=new NDEFReader();
-    await reader.scan();
-    $('info').textContent='Aproxime o cartão...';
-    showMsg('Aguardando cartão...');
+    reader=new NDEFReader();await reader.scan();
+    $('info').textContent='Aproxime o cartão...';showMsg('Aguardando cartão...');
     reader.onreading=async e=>{
       const id=e.serialNumber||Math.random().toString(36).slice(2,8);
       const users=db();
@@ -136,29 +129,23 @@ async function startNFC(){
         if(!nome){showMsg('Cancelado','err');return;}
         users[id]=nome;save(users);
         showMsg('✅ '+nome+' cadastrado!','ok');
-        showWelcome('Cadastrado!','ok');
+        showWelcome('Cadastrado!',false);
       }else{
         if(users[id]){
           showMsg('✅ Bem-vindo, '+users[id]+'!','ok');
-          playSound('beep');
-          showWelcome('Bem-vindo '+users[id]+'!','ok');
+          playSound('beep');showWelcome('Bem-vindo '+users[id]+'!');
         }else{
           showMsg('⛔ Acesso negado','err');
-          vibrate(300);
-          showWelcome('Acesso Negado','err');
+          vibrate(250);
+          showWelcome('Acesso Negado',true);
         }
       }
     };
-  }catch(err){
-    showMsg('Erro ou permissão negada','err');
-    console.error(err);
-  }
+  }catch(err){showMsg('Erro ou permissão negada','err');console.error(err);}
 }
 
-// Splash -> inicia leitura NFC
 $('allowBtn').onclick=()=>{
-  $('allowBtn').disabled=true;
-  $('allowBtn').style.opacity='0.5';
+  $('allowBtn').disabled=true;$('allowBtn').style.opacity='.5';
   setTimeout(async ()=>{
     await startNFC();
     $('splash').style.animation='fadeOut .5s forwards';
