@@ -33,9 +33,9 @@ button:active{transform:scale(.96)}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes check{to{transform:rotate(45deg) scale(1)}}
 .welcome h2{margin-top:1.2rem;font-size:1.5rem;color:#22c55e;font-weight:700;animation:fadeIn .8s ease}
-
 audio{display:none}
 </style>
+
 <body>
 <div class="bg"></div>
 
@@ -44,14 +44,13 @@ audio{display:none}
   <div class="wave"></div>
   <h1>🔐 NFC Access</h1>
   <p>Precisamos da sua permissão para acessar o sensor NFC</p>
-  <button id="allowBtn">Permitir Acesso</button>
+  <button id="allowBtn">Iniciar e Permitir Leitura NFC</button>
 </div>
 
 <!-- Conteúdo principal -->
 <main style="opacity:0;transition:opacity .6s ease;">
   <h1>🔐 NFC Access</h1>
   <p id="info">Aproxime seu cartão NFC</p>
-  <button id="startBtn">Iniciar Leitura</button>
   <button id="modeBtn">Modo: Acesso</button>
   <div id="msg"></div>
 </main>
@@ -64,7 +63,6 @@ audio{display:none}
 
 <!-- Sons -->
 <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-<audio id="plim" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
 
 <script>
 (()=>{
@@ -81,8 +79,8 @@ function toggleMode(){
   mode = mode==='acesso'?'cadastro':'acesso';
   $('modeBtn').textContent='Modo: '+(mode==='acesso'?'Acesso':'Cadastro');
   showMsg('Modo alterado para '+mode);
-  playSound('plim');
 }
+
 $('modeBtn').addEventListener('click',toggleMode);
 $('modeBtn').addEventListener('touchstart',e=>{e.preventDefault();toggleMode();});
 
@@ -102,12 +100,11 @@ async function startNFC(){
         if(!nome){showMsg('Cancelado','err');return;}
         users[id]=nome;save(users);
         showMsg('✅ '+nome+' cadastrado!','ok');
-        playSound('plim');
+        playSound('beep');
         showWelcome('Cadastrado!');
       } else {
         if(users[id]){
           showMsg('✅ Bem-vindo, '+users[id]+'!','ok');
-          playSound('plim');
           playSound('beep');
           showWelcome('Bem-vindo '+users[id]+'!');
         } else {
@@ -123,13 +120,16 @@ async function startNFC(){
   }
 }
 
-// SPLASH
+// Splash inicia o NFC
 $('allowBtn').onclick=()=>{
-  $('splash').style.animation='fadeOut .5s forwards';
-  setTimeout(()=>{$('splash').remove();document.querySelector('main').style.opacity=1;},500);
+  $('allowBtn').disabled=true;
+  $('allowBtn').style.opacity='0.5';
+  setTimeout(async ()=>{
+    await startNFC();
+    $('splash').style.animation='fadeOut .5s forwards';
+    setTimeout(()=>{$('splash').remove();document.querySelector('main').style.opacity=1;},500);
+  },200);
 };
-
-$('startBtn').onclick=()=>setTimeout(startNFC,100);
 })();
 </script>
 </body></html>
