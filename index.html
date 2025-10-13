@@ -32,7 +32,8 @@ button:active{transform:scale(.96)}
 .checkmark::after{content:"";position:absolute;left:22px;top:35px;width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;transform:rotate(45deg) scale(0);transform-origin:bottom left;animation:check .5s ease .3s forwards}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes check{to{transform:rotate(45deg) scale(1)}}
-.welcome h2{margin-top:1.2rem;font-size:1.5rem;color:#22c55e;font-weight:700;animation:fadeIn .8s ease}
+.welcome h2{margin-top:2rem;font-size:1.6rem;color:#22c55e;font-weight:700;animation:fadeIn .8s ease}
+
 audio{display:none}
 </style>
 
@@ -61,7 +62,7 @@ audio{display:none}
   <h2 id="welcomeText">Bem-vindo!</h2>
 </div>
 
-<!-- Sons -->
+<!-- Som -->
 <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
 <script>
@@ -80,7 +81,6 @@ function toggleMode(){
   $('modeBtn').textContent='Modo: '+(mode==='acesso'?'Acesso':'Cadastro');
   showMsg('Modo alterado para '+mode);
 }
-
 $('modeBtn').addEventListener('click',toggleMode);
 $('modeBtn').addEventListener('touchstart',e=>{e.preventDefault();toggleMode();});
 
@@ -91,7 +91,6 @@ async function startNFC(){
     await reader.scan();
     $('info').textContent='Aproxime o cartão...';
     showMsg('Aguardando cartão...');
-
     reader.onreading = async e=>{
       const id=e.serialNumber||Math.random().toString(36).slice(2,8);
       const users=db();
@@ -100,7 +99,6 @@ async function startNFC(){
         if(!nome){showMsg('Cancelado','err');return;}
         users[id]=nome;save(users);
         showMsg('✅ '+nome+' cadastrado!','ok');
-        playSound('beep');
         showWelcome('Cadastrado!');
       } else {
         if(users[id]){
