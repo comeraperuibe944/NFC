@@ -9,9 +9,9 @@ body{height:100vh;background:radial-gradient(circle at 20% 20%,#0f172a,#020617);
 
 h1{font-size:1.8rem;margin-bottom:.5rem;letter-spacing:.05em}
 p{color:#9ca3af;font-size:.95rem;margin-bottom:1.8rem}
-button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 25px rgba(59,130,246,.35)}
+button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 25px rgba(59,130,246,.35);touch-action:manipulation}
 button:active{transform:scale(.96)}
-#modeBtn{margin-top:1rem;background:linear-gradient(90deg,#22c55e,#15803d)}
+#modeBtn{margin-top:1rem;background:linear-gradient(90deg,#22c55e,#15803d);position:relative;z-index:5}
 #msg{margin-top:2rem;min-height:2.5rem;font-size:1.2rem;font-weight:600;opacity:0;transition:opacity .3s ease,transform .3s ease}
 #msg.show{opacity:1;transform:scale(1.05)}
 .ok{color:#22c55e;animation:pulse 1.2s infinite alternate}
@@ -76,9 +76,15 @@ function save(d){localStorage.setItem(LS,JSON.stringify(d))}
 function showMsg(txt,cls=''){const el=$('msg');el.className='show '+cls;el.textContent=txt}
 function playSound(id){const a=$(id);a.currentTime=0;a.play().catch(()=>{})}
 function showWelcome(txt){$('welcomeText').textContent=txt;const w=$('welcome');w.classList.add('show');setTimeout(()=>w.classList.remove('show'),2500)}
-$('modeBtn').onclick=()=>{mode=mode==='acesso'?'cadastro':'acesso';$('modeBtn').textContent='Modo: '+(mode==='acesso'?'Acesso':'Cadastro');showMsg('Modo alterado para '+mode)}
 
-// Splash Screen logic
+// botão modo funcionando corretamente
+$('modeBtn').addEventListener('click',()=>{ 
+  mode = mode==='acesso'?'cadastro':'acesso';
+  $('modeBtn').textContent='Modo: '+(mode==='acesso'?'Acesso':'Cadastro');
+  showMsg('Modo alterado para '+mode);
+},{passive:true});
+
+// Splash Screen
 $('allowBtn').onclick=async()=>{
   if(!('NDEFReader'in window)){alert('Seu navegador não suporta NFC.');return}
   try{
