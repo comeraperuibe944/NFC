@@ -81,6 +81,7 @@ audio{display:none}
 
 <!-- Som -->
 <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
 <script>
 (()=>{const $=id=>document.getElementById(id);
 let mode='acesso',reader,msgTimer;
@@ -88,17 +89,18 @@ const LS='nfc_users_v1';
 function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
 function save(d){localStorage.setItem(LS,JSON.stringify(d))}
 
-// 💡 Mensagem com fade super suave
+// LOGS com fade out suave (6s)
 function showMsg(txt,cls=''){
   const el=$('msg');
   el.className='show '+cls;
   el.textContent=txt;
-  clearTimeout(msgTimer);
-  el.style.transition='opacity 3s ease'; // transição lenta
   el.style.opacity='1';
-  // fica visível 6s, depois some devagar (3s)
-  msgTimer=setTimeout(()=>{el.style.opacity='0';},6000);
-  setTimeout(()=>{el.className='';el.textContent='';},9500);
+  clearTimeout(msgTimer);
+  msgTimer=setTimeout(()=>{
+    el.style.transition='opacity 1s ease';
+    el.style.opacity='0';
+    setTimeout(()=>{el.className='';el.textContent='';el.style.transition='';},1000);
+  },6000);
 }
 
 function playSound(id){const a=$(id);a.currentTime=0;a.play().catch(()=>{})}
@@ -113,6 +115,7 @@ function showWelcome(txt,isError=false){
   setTimeout(()=>w.classList.remove('show'),2500);
 }
 
+// alternar modo
 function toggleMode(){
   mode=mode==='acesso'?'cadastro':'acesso';
   $('modeBtn').textContent='Modo: '+(mode==='acesso'?'Acesso':'Cadastro');
@@ -120,6 +123,7 @@ function toggleMode(){
 }
 $('modeBtn').addEventListener('click',toggleMode);
 
+// leitura NFC
 async function startNFC(){
   if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
   try{
@@ -158,5 +162,4 @@ $('allowBtn').onclick=()=>{
 };
 })();
 </script>
-
 </body></html>
