@@ -89,18 +89,21 @@ const LS='nfc_users_v1';
 function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
 function save(d){localStorage.setItem(LS,JSON.stringify(d))}
 
-// LOGS com fade out suave (6s)
+// LOGS com fade out suave após 6s + fade 1s
 function showMsg(txt,cls=''){
   const el=$('msg');
+  clearTimeout(msgTimer);
   el.className='show '+cls;
   el.textContent=txt;
   el.style.opacity='1';
-  clearTimeout(msgTimer);
+  el.style.transition='opacity 1s ease';
   msgTimer=setTimeout(()=>{
-    el.style.transition='opacity 1s ease';
     el.style.opacity='0';
-    setTimeout(()=>{el.className='';el.textContent='';el.style.transition='';},1000);
-  },6000);
+    setTimeout(()=>{
+      el.className='';
+      el.textContent='';
+    },1000);
+  },7000); // 6s visível + 1s de fade-out
 }
 
 function playSound(id){const a=$(id);a.currentTime=0;a.play().catch(()=>{})}
