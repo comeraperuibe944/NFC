@@ -90,20 +90,33 @@ function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){ret
 function save(d){localStorage.setItem(LS,JSON.stringify(d))}
 
 // LOGS com fade out suave após 6s + fade 1s
-function showMsg(txt,cls=''){
-  const el=$('msg');
+function showMsg(txt, cls = '') {
+  const el = $('msg');
   clearTimeout(msgTimer);
-  el.className='show '+cls;
-  el.textContent=txt;
-  el.style.opacity='1';
-  el.style.transition='opacity 1s ease';
-  msgTimer=setTimeout(()=>{
-    el.style.opacity='0';
-    setTimeout(()=>{
-      el.className='';
-      el.textContent='';
-    },1000);
-  },7000); // 6s visível + 1s de fade-out
+
+  // Reset imediato para garantir que qualquer fade anterior não interfira
+  el.style.transition = 'none';
+  el.style.opacity = '0';
+  el.offsetHeight; // força reflow (importante!)
+
+  // Mostra o texto com efeito suave
+  el.className = 'show ' + cls;
+  el.textContent = txt;
+  el.style.transition = 'opacity 0.5s ease, transform 0.6s ease';
+  el.style.opacity = '1';
+  el.style.transform = 'scale(1.05)';
+
+  // Mantém visível por 6s antes de começar o fade-out
+  msgTimer = setTimeout(() => {
+    el.style.transition = 'opacity 1.2s ease';
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.className = '';
+      el.textContent = '';
+      el.style.transition = '';
+      el.style.transform = '';
+    }, 1200);
+  }, 6000);
 }
 
 function playSound(id){const a=$(id);a.currentTime=0;a.play().catch(()=>{})}
