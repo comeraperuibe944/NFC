@@ -122,14 +122,39 @@ function showMsg(txt, cls = '') {
 function playSound(id){const a=$(id);a.currentTime=0;a.play().catch(()=>{})}
 function vibrate(ms){if('vibrate'in navigator)navigator.vibrate(ms);}
 
-function showWelcome(txt,isError=false){
-  const w=$('welcome'),icon=w.querySelector('.icon'),text=$('welcomeText');
-  icon.className=isError?'icon err':'icon';
-  text.textContent=txt;
-  text.style.color=isError?'#ef4444':'#22c55e';
+function showWelcome(txt, isError = false) {
+  const w = $('welcome'),
+        icon = w.querySelector('.icon'),
+        text = $('welcomeText');
+
+  // Define o estado inicial
+  icon.className = isError ? 'icon err' : 'icon';
+  text.textContent = txt;
+  text.style.color = isError ? '#ef4444' : '#22c55e';
+
+  // Força reflow e inicia o fade-in
+  w.style.transition = 'none';
+  w.style.opacity = '0';
+  w.style.transform = 'scale(.9)';
+  w.offsetHeight; // força reflow
+
   w.classList.add('show');
-  setTimeout(()=>w.classList.remove('show'),2500);
+  w.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  w.style.opacity = '1';
+  w.style.transform = 'scale(1)';
+
+  // Mantém visível e depois aplica fade-out suave
+  setTimeout(() => {
+    w.style.transition = 'opacity 0.8s ease';
+    w.style.opacity = '0';
+    setTimeout(() => {
+      w.classList.remove('show');
+      w.style.transition = '';
+      w.style.transform = 'scale(.9)';
+    }, 800);
+  }, 2500);
 }
+
 
 // alternar modo
 function toggleMode(){
