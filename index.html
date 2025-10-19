@@ -1,4 +1,5 @@
-<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NFC Access</title>
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NFC Access</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",system-ui,Arial,sans-serif}
 body{height:100vh;background:#020617;color:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
@@ -9,7 +10,7 @@ body{height:100vh;background:#020617;color:#fff;overflow:hidden;display:flex;ali
 @keyframes beamMove{0%,100%{transform:translate(-30%,-30%) rotate(25deg)}50%{transform:translate(30%,30%) rotate(25deg)}}
 h1{font-size:1.8rem;margin-bottom:.5rem}
 p{color:#9ca3af;font-size:.95rem;margin-bottom:1.8rem}
-button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;cursor:pointer;transition:.3s;box-shadow:0 6px 25px rgba(59,130,246,.35)}
+button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1rem 2rem;font-size:1rem;font-weight:700;cursor:pointer;transition:.3s;box-shadow:0 6px 25px rgba(59,130,246,.35)}
 button:active{transform:scale(.96)}
 #msg{margin-top:2rem;min-height:2.5rem;font-size:1.2rem;font-weight:600;opacity:0;transition:opacity 1s ease,transform .6s ease}
 #msg.show{opacity:1;transform:scale(1.05)}
@@ -36,47 +37,63 @@ button:active{transform:scale(.96)}
 .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.08) 50%,transparent 100%);animation:shine 10s linear infinite;mix-blend-mode:overlay}
 @keyframes shine{to{transform:translateX(100%)}}
 audio{display:none}
+/* menu */
+.menu-btn{position:absolute;top:20px;right:25px;font-size:2rem;cursor:pointer;user-select:none;transition:.3s;z-index:20}
+.menu{position:absolute;top:60px;right:25px;background:rgba(15,23,42,.95);border:1px solid rgba(255,255,255,.1);border-radius:.8rem;box-shadow:0 8px 25px rgba(0,0,0,.4);overflow:hidden;transform:scale(0);transform-origin:top right;transition:transform .3s ease;z-index:19}
+.menu.show{transform:scale(1)}
+.menu button{display:block;width:100%;border:none;background:none;color:#fff;padding:1rem 2rem;text-align:left;font-size:1rem;cursor:pointer;transition:.2s}
+.menu button:hover{background:rgba(255,255,255,.1)}
+.menu .danger{color:#ef4444}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.3s}
+.modal.show{opacity:1;pointer-events:auto}
+.modal-content{background:#1e293b;padding:2rem;border-radius:1rem;width:300px;max-height:70vh;overflow:auto;text-align:left}
+.modal-content h3{text-align:center;margin-bottom:1rem}
+.user-item{display:flex;justify-content:space-between;align-items:center;margin:.4rem 0}
+.user-item span{font-size:.95rem}
+.user-item button{padding:.2rem .7rem;font-size:.8rem;border-radius:.5rem}
 </style>
 <body>
 <div class="bg"><div class="grid"></div><div class="beam"></div></div>
 <div class="splash" id="splash"><div class="wave"></div><h1>🔐 NFC Access</h1><p>Precisamos da sua permissão para acessar o sensor NFC</p><button id="allowBtn">Iniciar e Permitir Leitura NFC</button></div>
 <main style="opacity:0;transition:opacity .6s ease;">
+  <div class="menu-btn" id="menuBtn">☰</div>
+  <div class="menu" id="menu">
+    <button id="viewBtn">👥 Ver/Editar Cadastros</button>
+    <button id="clearBtn" class="danger">🗑️ Excluir Tudo</button>
+  </div>
   <h1>🔐 NFC Access</h1>
   <p id="info">Aproxime seu cartão NFC</p>
   <div id="msg"></div>
 </main>
 <div class="welcome" id="welcome"><div class="icon"></div><h2 id="welcomeText">Bem-vindo!</h2></div>
+<div class="modal" id="modal"><div class="modal-content"><h3>Cadastros</h3><div id="userList"></div></div></div>
 <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 <script>
-(()=>{const $=id=>document.getElementById(id);const LS='nfc_users_v1';
-let reader,msgTimer;
+(()=>{const $=id=>document.getElementById(id),LS='nfc_users_v1';let reader,msgTimer;
 function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return{}}}
 function save(d){localStorage.setItem(LS,JSON.stringify(d))}
-function showMsg(t,c=''){const e=$('msg');clearTimeout(msgTimer);e.style.transition='none';e.style.opacity='0';e.offsetHeight;e.className='show '+c;e.textContent=t;e.style.transition='opacity .5s ease,transform .6s ease';e.style.opacity='1';e.style.transform='scale(1.05)';msgTimer=setTimeout(()=>{e.style.transition='opacity 1.2s ease';e.style.opacity='0';setTimeout(()=>{e.className='';e.textContent='';},1200)},6000)}
+function showMsg(t,c=''){const e=$('msg');clearTimeout(msgTimer);e.style.transition='none';e.style.opacity='0';e.offsetHeight;e.className='show '+c;e.textContent=t;e.style.transition='opacity .5s ease,transform .6s ease';e.style.opacity='1';e.style.transform='scale(1.05)';msgTimer=setTimeout(()=>{e.style.transition='opacity 1.2s ease';e.style.opacity='0';setTimeout(()=>{e.className='';e.textContent=''},1200)},6000)}
 function playSound(){const a=$('beep');a.currentTime=0;a.play().catch(()=>{})}
 function vibrate(ms){if('vibrate'in navigator)navigator.vibrate(ms)}
 function showWelcome(t,err=false){const w=$('welcome'),i=w.querySelector('.icon'),tx=$('welcomeText');i.className=err?'icon err':'icon';tx.textContent=t;tx.style.color=err?'#ef4444':'#22c55e';w.style.transition='none';w.style.opacity='0';w.offsetHeight;w.classList.add('show');w.style.transition='opacity .6s ease';w.style.opacity='1';setTimeout(()=>{w.style.opacity='0';setTimeout(()=>w.classList.remove('show'),800)},2500)}
-async function startNFC(){
- if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
- try{
-  reader=new NDEFReader();await reader.scan();showMsg('Aguardando cartão...');
-  reader.onreading=async e=>{
-    const id=e.serialNumber||Math.random().toString(36).slice(2,8);
-    const users=db();
-    if(users[id]){showMsg('✅ Bem-vindo, '+users[id]+'!','ok');playSound();showWelcome('Bem-vindo '+users[id]+'!')}
-    else{
-      showMsg('⛔ Cartão não cadastrado','err');vibrate(250);showWelcome('Acesso Negado',true);
-      setTimeout(async()=>{
-        if(confirm('Cartão não encontrado. Deseja cadastrar este cartão?')){
-          const nome=prompt('Digite seu nome para cadastro:');
-          if(nome){users[id]=nome;save(users);showMsg('✅ '+nome+' cadastrado!','ok');showWelcome('Cadastrado!',false);}
-        }
-      },3000);
-    }
-  };
- }catch(e){showMsg('Erro ou permissão negada','err');console.error(e);}
-}
+async function startNFC(){if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
+try{reader=new NDEFReader();await reader.scan();showMsg('Aguardando cartão...');
+reader.onreading=async e=>{const id=e.serialNumber||Math.random().toString(36).slice(2,8),users=db();
+if(users[id]){showMsg('✅ Bem-vindo, '+users[id]+'!','ok');playSound();showWelcome('Bem-vindo '+users[id]+'!')}
+else{showMsg('⛔ Cartão não cadastrado','err');vibrate(250);showWelcome('Acesso Negado',true);
+setTimeout(async()=>{if(confirm('Cartão não encontrado. Deseja cadastrar este cartão?')){const nome=prompt('Digite seu nome para cadastro:');if(nome){users[id]=nome;save(users);showMsg('✅ '+nome+' cadastrado!','ok');showWelcome('Cadastrado!',false);}}},3000);}};}catch(e){showMsg('Erro ou permissão negada','err');console.error(e);}}
 $('allowBtn').onclick=async()=>{$('allowBtn').disabled=true;$('allowBtn').style.opacity='.5';setTimeout(async()=>{await startNFC();$('splash').style.animation='fadeOut .5s forwards';setTimeout(()=>{$('splash').remove();document.querySelector('main').style.opacity=1;},500)},200)};
+/* menu */
+const menu=$('menu'),menuBtn=$('menuBtn'),modal=$('modal'),list=$('userList');
+menuBtn.onclick=()=>menu.classList.toggle('show');
+window.onclick=e=>{if(!menu.contains(e.target)&&e.target!==menuBtn)menu.classList.remove('show');}
+$('viewBtn').onclick=()=>{menu.classList.remove('show');const users=db();list.innerHTML='';if(!Object.keys(users).length){list.innerHTML='<p style="text-align:center;color:#9ca3af;">Nenhum cadastro</p>'}
+else for(const [id,nome] of Object.entries(users)){const div=document.createElement('div');div.className='user-item';div.innerHTML=`<span>${nome}</span>
+<div><button onclick="(()=>{const novo=prompt('Novo nome para ${nome}:', '${nome}');if(novo){const u=${JSON.stringify(users)};u['${id}']=novo;localStorage.setItem('${LS}',JSON.stringify(u));location.reload();}})()">✏️</button>
+<button onclick="(()=>{if(confirm('Excluir ${nome}?')){const u=${JSON.stringify(users)};delete u['${id}'];localStorage.setItem('${LS}',JSON.stringify(u));location.reload();}})()">🗑️</button></div>`;list.appendChild(div);}
+modal.classList.add('show');}
+modal.onclick=e=>{if(e.target===modal)modal.classList.remove('show');}
+$('clearBtn').onclick=()=>{menu.classList.remove('show');if(confirm('Tem certeza que deseja excluir TODOS os cadastros?')){localStorage.removeItem(LS);showMsg('Todos os cadastros foram excluídos','err');}}
 })();
 </script>
 </body></html>
