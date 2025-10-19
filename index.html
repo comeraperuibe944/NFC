@@ -1,6 +1,4 @@
-<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NFC Access</title>
-<style>
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NFC Access</title><style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",system-ui,Arial,sans-serif}
 body{height:100vh;background:#020617;color:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
 canvas.bgAnim{position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 30% 30%,#0f172a,#000)}
@@ -10,20 +8,18 @@ button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;
 button:active{transform:scale(.96)}
 #msg{margin-top:2rem;min-height:2.5rem;font-size:1.2rem;font-weight:600;opacity:0;transition:opacity 1s ease,transform .6s ease}
 #msg.show{opacity:1;transform:scale(1.05)}
-.ok{color:#22c55e;animation:pulse 1.2s infinite alternate}
+.ok{color:#22c55e}
 .err{color:#ef4444}
-@keyframes pulse{to{transform:scale(1.08);opacity:.8}}
+@keyframes fadeOut{to{opacity:0;transform:scale(1.05)}}
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#1e3a8a,#1e40af,#0f172a);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;animation:fadeIn .8s ease}
 .splash h1{font-size:2rem;margin-bottom:1rem}
-.splash button{margin-top:2rem;padding:1.2rem 2.8rem;font-size:1.1rem;border-radius:2rem;animation:pulseBtn 2s infinite alternate}
-@keyframes pulseBtn{to{transform:scale(1.05);box-shadow:0 0 20px rgba(59,130,246,.4)}}
+.splash button{margin-top:2rem;padding:1.2rem 2.8rem;font-size:1.1rem;border-radius:2rem}
 .wave{width:70px;height:70px;border:4px solid rgba(255,255,255,.2);border-top-color:#38bdf8;border-radius:50%;animation:spin 1.4s linear infinite;margin-bottom:1rem}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeOut{to{opacity:0;transform:scale(1.05)}}
 .welcome{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.9);transition:all .6s ease;z-index:9;pointer-events:none}
 .welcome.show{opacity:1;transform:scale(1)}
-.icon{width:90px;height:90px;border-radius:50%;border:4px solid #22c55e;position:relative;animation:popIn .5s ease forwards}
-.icon::after{content:"";position:absolute;left:22px;top:35px;width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;transform:rotate(45deg) scale(0);transform-origin:bottom left;animation:check .5s ease .3s forwards}
+.icon{width:90px;height:90px;border-radius:50%;border:4px solid #22c55e;position:relative;animation:popIn .4s ease forwards}
+.icon::after{content:"";position:absolute;left:22px;top:35px;width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;transform:rotate(45deg) scale(0);transform-origin:bottom left;animation:check .4s ease .25s forwards}
 .icon.err{border-color:#ef4444}
 .icon.err::after{left:28px;top:25px;width:30px;height:30px;border:none;transform:rotate(45deg);background:linear-gradient(to bottom right,transparent 45%,#ef4444 45%,#ef4444 55%,transparent 55%)}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
@@ -45,118 +41,25 @@ button:active{transform:scale(.96)}
 .tapIcon::after{width:50px;height:50px;animation-delay:1.2s;opacity:.4}
 @keyframes tapAnim{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.3)}}
 audio{display:none}
-</style>
-<body>
-<canvas class="bgAnim"></canvas>
-
-<div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div>
-<div class="menu" id="menu">
-  <button id="viewBtn">Ver / Editar Cadastros</button>
-  <button id="clearBtn" class="danger">Excluir Tudo</button>
-</div>
-
-<div class="splash" id="splash">
-  <div class="wave"></div>
-  <h1>🔐 NFC Access</h1>
-  <p>Precisamos da sua permissão para acessar o sensor NFC</p>
-  <button id="allowBtn">Iniciar e Permitir Leitura NFC</button>
-</div>
-
-<main style="opacity:0;transition:opacity .6s ease;">
-  <h1>NFC Access</h1>
-  <p id="info">Aproxime seu cartão NFC</p>
-  <div class="tapIcon"></div>
-  <div id="msg"></div>
-</main>
-
-<div class="welcome" id="welcome"><div class="icon"></div><h2 id="welcomeText">Bem-vindo!</h2></div>
-<audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-
-<script>
+</style><body><canvas class="bgAnim"></canvas><div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div><div class="menu" id="menu"><button id="viewBtn">Ver / Editar Cadastros</button><button id="clearBtn" class="danger">Excluir Tudo</button></div><div class="splash" id="splash"><div class="wave"></div><h1>🔐 NFC Access</h1><p>Precisamos da sua permissão para acessar o sensor NFC</p><button id="allowBtn">Iniciar e Permitir Leitura NFC</button></div><main style="opacity:0;transition:opacity .6s ease;"><h1>NFC Access</h1><p id="info">Aproxime seu cartão NFC</p><div class="tapIcon"></div><div id="msg"></div></main><div class="welcome" id="welcome"><div class="icon"></div><h2 id="welcomeText">Bem-vindo!</h2></div><audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio><script>
 (()=>{const $=id=>document.getElementById(id),LS='nfc_users_v1';let reader,msgTimer;
 function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return{}}}
 function save(d){localStorage.setItem(LS,JSON.stringify(d))}
-function showMsg(t, c = '') {
-  const e = $('msg');
-  clearTimeout(msgTimer);
-
-  // reset antes de mostrar de novo
-  e.classList.remove('show');
-  void e.offsetWidth; // força reflow pra reiniciar animação
-
-  e.textContent = t;
-  e.className = c; // define cor
-  setTimeout(() => e.classList.add('show'), 10);
-
-  msgTimer = setTimeout(() => {
-    e.classList.remove('show');
-  }, 3500);
-}
-
-function showWelcome(t, err = false) {
-  const w = $('welcome');
-  const i = w.querySelector('.icon');
-  const tx = $('welcomeText');
-
-  // reseta animação antes de mostrar
-  w.classList.remove('show');
-  w.style.opacity = '0';
-  void w.offsetWidth; // reflow
-
-  i.className = err ? 'icon err' : 'icon';
-  tx.textContent = t;
-  tx.style.color = err ? '#ef4444' : '#22c55e';
-
-  // mostra
-  w.classList.add('show');
-  w.style.opacity = '1';
-
-  setTimeout(() => {
-    w.style.opacity = '0';
-    setTimeout(() => {
-      w.classList.remove('show');
-    }, 600);
-  }, 2000);
-}
-
+function showMsg(t,c=''){const e=$('msg');clearTimeout(msgTimer);e.classList.remove('show');e.textContent=t;e.className=c;void e.offsetWidth;e.classList.add('show');msgTimer=setTimeout(()=>{e.classList.remove('show')},3500)}
+function showWelcome(t,err=false){const w=$('welcome'),i=w.querySelector('.icon'),tx=$('welcomeText');w.classList.remove('show');w.style.opacity='0';void w.offsetWidth;i.className=err?'icon err':'icon';tx.textContent=t;tx.style.color=err?'#ef4444':'#22c55e';w.classList.add('show');w.style.opacity='1';setTimeout(()=>{w.style.opacity='0';setTimeout(()=>w.classList.remove('show'),600)},2000)}
 function playSound(){const a=$('beep');a.currentTime=0;a.play().catch(()=>{})}
 function vibrate(ms){if('vibrate'in navigator)navigator.vibrate(ms)}
-async function startNFC(){
- if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
- try{
-  reader=new NDEFReader();await reader.scan();showMsg('Aguardando cartão...');
-  reader.onreading=async e=>{
-    const id=e.serialNumber||Math.random().toString(36).slice(2,8);
-    const users=db();
-    if(users[id]){showMsg('✅ Bem-vindo, '+users[id]+'!','ok');playSound();showWelcome('Bem-vindo '+users[id]+'!')}
-    else{
-      vibrate(250);showWelcome('Acesso Negado',true);
-      setTimeout(async()=>{
-        if(confirm('Cartão não encontrado. Deseja cadastrar?')){
-          const nome=prompt('Digite seu nome para cadastro:');
-          if(nome){users[id]=nome;save(users);showMsg(nome+' cadastrado!','ok');showWelcome('Cadastrado!',false);}
-        }
-      },2000);
-    }
-  };
- }catch(e){showMsg('Erro ou permissão negada','err');console.error(e);}
-}
-$('allowBtn').onclick=async()=>{$('allowBtn').disabled=true;$('allowBtn').style.opacity='.5';setTimeout(async()=>{await startNFC();$('splash').style.animation='fadeOut .5s forwards';setTimeout(()=>{$('splash').remove();document.querySelector('main').style.opacity=1;},500)},200)};
-$('menuBtn').onclick=()=>{const b=$('menuBtn'),m=$('menu');b.classList.toggle('active');m.classList.toggle('show')};
-$('viewBtn').onclick=()=>{const users=db();alert(Object.keys(users).length?Object.entries(users).map(([k,v])=>`${v} (${k})`).join('\n'):'Nenhum cadastro.')};
-$('clearBtn').onclick=()=>{if(confirm('Tem certeza que deseja excluir todos os cadastros?')){localStorage.removeItem(LS);showMsg('Todos os cadastros excluídos','err')}};
-
-// animação de mar de luz
-const c=document.querySelector('.bgAnim'),x=c.getContext('2d');let w,h,particles=[];
-function resize(){w=innerWidth;h=innerHeight;c.width=w;c.height=h}
-window.addEventListener('resize',resize);resize();
-class Particle{constructor(x,y,r){this.x=x;this.y=y;this.r=r;this.baseY=y;this.t=Math.random()*Math.PI*2;}
-update(t){this.y=this.baseY+Math.sin(t/500+this.x/50)*8;this.r=1.5+Math.sin(t/1000+this.x/80)*1.2;}
-draw(){x.beginPath();x.arc(this.x,this.y,this.r,0,2*Math.PI);x.fillStyle='rgba(56,189,248,.25)';x.fill()}}
-for(let i=0;i<300;i++)particles.push(new Particle(Math.random()*w,Math.random()*h,Math.random()*2+1));
-function animate(t){x.clearRect(0,0,w,h);for(let p of particles)p.update(t),p.draw();requestAnimationFrame(animate)}
-animate();
+async function startNFC(){if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
+try{reader=new NDEFReader();await reader.scan();showMsg('Aguardando cartão...');reader.onreading=async e=>{const id=e.serialNumber||Math.random().toString(36).slice(2,8),u=db();if(u[id]){showMsg('✅ Bem-vindo, '+u[id]+'!','ok');playSound();showWelcome('Bem-vindo '+u[id]+'!')}
+else{vibrate(250);showWelcome('Acesso Negado',true);setTimeout(async()=>{if(confirm('Cartão não encontrado. Deseja cadastrar?')){const nome=prompt('Digite seu nome para cadastro:');if(nome){u[id]=nome;save(u);showMsg(nome+' cadastrado!','ok');showWelcome('Cadastrado!',false);}}},2000)}}}
+catch(e){showMsg('Erro ou permissão negada','err');console.error(e);}}
+$('allowBtn').onclick=async()=>{$('allowBtn').disabled=true;$('allowBtn').style.opacity='.5';setTimeout(async()=>{await startNFC();$('splash').style.animation='fadeOut .5s forwards';setTimeout(()=>{$('splash').remove();document.querySelector('main').style.opacity=1},500)},200)}
+$('menuBtn').onclick=()=>{const b=$('menuBtn'),m=$('menu');b.classList.toggle('active');m.classList.toggle('show')}
+$('viewBtn').onclick=()=>{const u=db();alert(Object.keys(u).length?Object.entries(u).map(([k,v])=>`${v} (${k})`).join('\n'):'Nenhum cadastro.')}
+$('clearBtn').onclick=()=>{if(confirm('Tem certeza que deseja excluir todos os cadastros?')){localStorage.removeItem(LS);showMsg('Todos os cadastros excluídos','err')}}
+const c=document.querySelector('.bgAnim'),x=c.getContext('2d');let w,h,p=[];function resize(){w=innerWidth;h=innerHeight;c.width=w;c.height=h}
+window.addEventListener('resize',resize);resize();class P{constructor(x,y,r){this.x=x;this.y=y;this.r=r;this.by=y;}u(t){this.y=this.by+Math.sin(t/500+this.x/50)*8;this.r=1.5+Math.sin(t/1000+this.x/80)*1.2;}d(){x.beginPath();x.arc(this.x,this.y,this.r,0,2*Math.PI);x.fillStyle='rgba(56,189,248,.25)';x.fill()}}
+for(let i=0;i<300;i++)p.push(new P(Math.random()*w,Math.random()*h,Math.random()*2+1));
+function anim(t){x.clearRect(0,0,w,h);for(let o of p)o.u(t),o.d();requestAnimationFrame(anim)}anim();
 })();
-</script>
-</body></html>
-
+</script></body></html>
