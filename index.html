@@ -37,37 +37,59 @@ button:active{transform:scale(.96)}
 .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.08) 50%,transparent 100%);animation:shine 10s linear infinite;mix-blend-mode:overlay}
 @keyframes shine{to{transform:translateX(100%)}}
 audio{display:none}
-/* menu */
-.menu-btn{position:absolute;top:20px;right:25px;font-size:2rem;cursor:pointer;user-select:none;transition:.3s;z-index:20}
-.menu{position:absolute;top:60px;right:25px;background:rgba(15,23,42,.95);border:1px solid rgba(255,255,255,.1);border-radius:.8rem;box-shadow:0 8px 25px rgba(0,0,0,.4);overflow:hidden;transform:scale(0);transform-origin:top right;transition:transform .3s ease;z-index:19}
+
+/* menu minimalista */
+.menu-btn{position:absolute;top:20px;right:25px;font-size:1.8rem;cursor:pointer;user-select:none;z-index:20;transition:.3s}
+.menu-btn:hover{opacity:.8}
+.menu{position:absolute;top:60px;right:25px;background:rgba(15,23,42,.96);border:1px solid rgba(255,255,255,.1);border-radius:.8rem;box-shadow:0 8px 25px rgba(0,0,0,.4);overflow:hidden;transform:scale(0);transform-origin:top right;transition:transform .25s ease;z-index:19;min-width:200px}
 .menu.show{transform:scale(1)}
-.menu button{display:block;width:100%;border:none;background:none;color:#fff;padding:1rem 2rem;text-align:left;font-size:1rem;cursor:pointer;transition:.2s}
-.menu button:hover{background:rgba(255,255,255,.1)}
-.menu .danger{color:#ef4444}
+.menu button{display:block;width:100%;border:none;background:none;color:#e5e7eb;padding:1rem 1.4rem;text-align:left;font-size:.95rem;cursor:pointer;transition:.2s}
+.menu button:hover{background:rgba(255,255,255,.07)}
+.menu .danger{color:#f87171}
+.menu .danger:hover{background:rgba(248,113,113,.15)}
+
+/* modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.3s}
 .modal.show{opacity:1;pointer-events:auto}
-.modal-content{background:#1e293b;padding:2rem;border-radius:1rem;width:300px;max-height:70vh;overflow:auto;text-align:left}
+.modal-content{background:#1e293b;padding:2rem;border-radius:1rem;width:320px;max-height:70vh;overflow:auto;text-align:left}
 .modal-content h3{text-align:center;margin-bottom:1rem}
 .user-item{display:flex;justify-content:space-between;align-items:center;margin:.4rem 0}
 .user-item span{font-size:.95rem}
 .user-item button{padding:.2rem .7rem;font-size:.8rem;border-radius:.5rem}
+
+/* animação estilo assassin’s creed */
+.loader{position:relative;width:100px;height:100px;margin:0 auto}
+.loader span{position:absolute;top:50%;left:50%;width:6px;height:6px;background:#38bdf8;border-radius:50%;transform-origin:center;animation:orbit 2.4s linear infinite}
+@keyframes orbit{0%{transform:rotate(0deg) translateX(30px) scale(1)}50%{transform:rotate(180deg) translateX(30px) scale(.6)}100%{transform:rotate(360deg) translateX(30px) scale(1)}}
+.loader span:nth-child(2){animation-delay:.3s}
+.loader span:nth-child(3){animation-delay:.6s}
+.loader span:nth-child(4){animation-delay:.9s}
+.loader span:nth-child(5){animation-delay:1.2s}
+.loader span:nth-child(6){animation-delay:1.5s}
+.loader span:nth-child(7){animation-delay:1.8s}
+.loader span:nth-child(8){animation-delay:2.1s}
 </style>
+
 <body>
 <div class="bg"><div class="grid"></div><div class="beam"></div></div>
 <div class="splash" id="splash"><div class="wave"></div><h1>🔐 NFC Access</h1><p>Precisamos da sua permissão para acessar o sensor NFC</p><button id="allowBtn">Iniciar e Permitir Leitura NFC</button></div>
 <main style="opacity:0;transition:opacity .6s ease;">
   <div class="menu-btn" id="menuBtn">☰</div>
   <div class="menu" id="menu">
-    <button id="viewBtn">👥 Ver/Editar Cadastros</button>
-    <button id="clearBtn" class="danger">🗑️ Excluir Tudo</button>
+    <button id="viewBtn">Ver / Editar Cadastros</button>
+    <button id="clearBtn" class="danger">Excluir Tudo</button>
   </div>
   <h1>🔐 NFC Access</h1>
   <p id="info">Aproxime seu cartão NFC</p>
+  <div class="loader" id="loader">
+    <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
   <div id="msg"></div>
 </main>
 <div class="welcome" id="welcome"><div class="icon"></div><h2 id="welcomeText">Bem-vindo!</h2></div>
 <div class="modal" id="modal"><div class="modal-content"><h3>Cadastros</h3><div id="userList"></div></div></div>
 <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
 <script>
 (()=>{const $=id=>document.getElementById(id),LS='nfc_users_v1';let reader,msgTimer;
 function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return{}}}
@@ -89,8 +111,8 @@ menuBtn.onclick=()=>menu.classList.toggle('show');
 window.onclick=e=>{if(!menu.contains(e.target)&&e.target!==menuBtn)menu.classList.remove('show');}
 $('viewBtn').onclick=()=>{menu.classList.remove('show');const users=db();list.innerHTML='';if(!Object.keys(users).length){list.innerHTML='<p style="text-align:center;color:#9ca3af;">Nenhum cadastro</p>'}
 else for(const [id,nome] of Object.entries(users)){const div=document.createElement('div');div.className='user-item';div.innerHTML=`<span>${nome}</span>
-<div><button onclick="(()=>{const novo=prompt('Novo nome para ${nome}:', '${nome}');if(novo){const u=${JSON.stringify(users)};u['${id}']=novo;localStorage.setItem('${LS}',JSON.stringify(u));location.reload();}})()">✏️</button>
-<button onclick="(()=>{if(confirm('Excluir ${nome}?')){const u=${JSON.stringify(users)};delete u['${id}'];localStorage.setItem('${LS}',JSON.stringify(u));location.reload();}})()">🗑️</button></div>`;list.appendChild(div);}
+<div><button onclick="(()=>{const novo=prompt('Novo nome para ${nome}:', '${nome}');if(novo){const u=${JSON.stringify(users)};u['${id}']=novo;localStorage.setItem('${LS}',JSON.stringify(u));location.reload();}})()">Editar</button>
+<button onclick="(()=>{if(confirm('Excluir ${nome}?')){const u=${JSON.stringify(users)};delete u['${id}'];localStorage.setItem('${LS}',JSON.stringify(u));location.reload();}})()">Excluir</button></div>`;list.appendChild(div);}
 modal.classList.add('show');}
 modal.onclick=e=>{if(e.target===modal)modal.classList.remove('show');}
 $('clearBtn').onclick=()=>{menu.classList.remove('show');if(confirm('Tem certeza que deseja excluir TODOS os cadastros?')){localStorage.removeItem(LS);showMsg('Todos os cadastros foram excluídos','err');}}
