@@ -76,10 +76,51 @@ audio{display:none}
 (()=>{const $=id=>document.getElementById(id),LS='nfc_users_v1';let reader,msgTimer;
 function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return{}}}
 function save(d){localStorage.setItem(LS,JSON.stringify(d))}
-function showMsg(t,c=''){const e=$('msg');clearTimeout(msgTimer);e.className='show '+c;e.textContent=t;e.style.opacity='1';msgTimer=setTimeout(()=>{e.style.opacity='0';},4000)}
+function showMsg(t, c = '') {
+  const e = $('msg');
+  clearTimeout(msgTimer);
+
+  // reset antes de mostrar de novo
+  e.classList.remove('show');
+  void e.offsetWidth; // força reflow pra reiniciar animação
+
+  e.textContent = t;
+  e.className = c; // define cor
+  setTimeout(() => e.classList.add('show'), 10);
+
+  msgTimer = setTimeout(() => {
+    e.classList.remove('show');
+  }, 3500);
+}
+
+function showWelcome(t, err = false) {
+  const w = $('welcome');
+  const i = w.querySelector('.icon');
+  const tx = $('welcomeText');
+
+  // reseta animação antes de mostrar
+  w.classList.remove('show');
+  w.style.opacity = '0';
+  void w.offsetWidth; // reflow
+
+  i.className = err ? 'icon err' : 'icon';
+  tx.textContent = t;
+  tx.style.color = err ? '#ef4444' : '#22c55e';
+
+  // mostra
+  w.classList.add('show');
+  w.style.opacity = '1';
+
+  setTimeout(() => {
+    w.style.opacity = '0';
+    setTimeout(() => {
+      w.classList.remove('show');
+    }, 600);
+  }, 2000);
+}
+
 function playSound(){const a=$('beep');a.currentTime=0;a.play().catch(()=>{})}
 function vibrate(ms){if('vibrate'in navigator)navigator.vibrate(ms)}
-function showWelcome(t,err=false){const w=$('welcome'),i=w.querySelector('.icon'),tx=$('welcomeText');i.className=err?'icon err':'icon';tx.textContent=t;tx.style.color=err?'#ef4444':'#22c55e';w.classList.add('show');setTimeout(()=>{w.style.opacity='0';setTimeout(()=>w.classList.remove('show'),800)},2500)}
 async function startNFC(){
  if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
  try{
@@ -118,3 +159,4 @@ animate();
 })();
 </script>
 </body></html>
+
