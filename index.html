@@ -107,7 +107,7 @@ async function startNFC(){
           const nome=prompt('Digite seu nome para cadastro:');
           if(nome){users[id]=nome;save(users);showMsg(nome+' cadastrado!','ok');showWelcome('Cadastrado!',false);}
         }
-      },1500);
+      },3000);
     }
   };
  }catch(e){showMsg('Erro ou permissão negada','err');}
@@ -131,4 +131,5 @@ animate();
 </script>
 </body>
 </html>
+
 
