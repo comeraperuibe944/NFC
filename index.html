@@ -1,135 +1,465 @@
-<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NFC Access</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",system-ui,Arial,sans-serif}
-body{height:100vh;background:#020617;color:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
-canvas.bgAnim{position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 30% 30%,#0f172a,#000)}
-h1{font-size:1.8rem;margin-bottom:.5rem}
-p{color:#9ca3af;font-size:.95rem;margin-bottom:1.2rem}
-button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;cursor:pointer;transition:.3s;box-shadow:0 6px 25px rgba(59,130,246,.35)}
-button:active{transform:scale(.96)}
-#msg{margin-top:2rem;min-height:2.5rem;font-size:1.2rem;font-weight:600;opacity:0;transition:opacity .8s ease}
-#msg.show{opacity:1}
-.ok{color:#22c55e}
-.err{color:#ef4444}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NFC Access</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Inter", system-ui, Arial, sans-serif }
+    body { height: 100vh; background: #020617; color: #fff; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; position: relative }
+    canvas.bgAnim { position: fixed; inset: 0; z-index: -2; background: radial-gradient(circle at 30% 30%, #0f172a, #000) }
+    h1 { font-size: 1.8rem; margin-bottom: .5rem }
+    p { color: #9ca3af; font-size: .95rem; margin-bottom: 1.2rem }
+    button { background: linear-gradient(90deg, #06b6d4, #3b82f6); color: #fff; border: none; border-radius: 1.5rem; padding: 1.2rem 2.5rem; font-size: 1rem; font-weight: 700; cursor: pointer; transition: .3s; box-shadow: 0 6px 25px rgba(59, 130, 246, .35) }
+    button:active { transform: scale(.96) }
+    #msg { margin-top: 2rem; min-height: 2.5rem; font-size: 1.2rem; font-weight: 600; opacity: 0; transition: opacity .8s ease }
+    #msg.show { opacity: 1 }
+    .ok { color: #22c55e }
+    .err { color: #ef4444 }
 
-/* === CORRIGIDO: TELA WELCOME FULL ===*/
-.welcome{
-  position:fixed;inset:0;width:100%;height:100%;
-  background:rgba(0,0,0,.7);backdrop-filter:blur(10px);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  opacity:0;transition:opacity .45s ease;z-index:9;
-}
-.welcome.show{opacity:1}
-
-.icon{width:90px;height:90px;border-radius:50%;border:4px solid #22c55e;position:relative;animation:popIn .35s ease forwards}
-.icon::after{content:"";position:absolute;left:22px;top:35px;width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;transform:rotate(45deg) scale(0);transform-origin:bottom left;animation:check .45s ease .2s forwards}
-.icon.err{border-color:#ef4444}
-.icon.err::after{left:28px;top:25px;width:30px;height:30px;border:none;background:linear-gradient(to bottom right,transparent 45%,#ef4444 45%,#ef4444 55%,transparent 55%)}
-
-@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
-@keyframes check{to{transform:rotate(45deg) scale(1)}}
-
-.welcome h2{margin-top:2.5rem;font-size:1.6rem;font-weight:700}
-
-.menuBtn{position:fixed;top:20px;left:20px;width:36px;height:28px;cursor:pointer;z-index:20}
-.menuBtn span{display:block;height:4px;background:#fff;border-radius:2px;margin:6px 0;transition:.4s}
-.menuBtn.active span:nth-child(1){transform:translateY(10px) rotate(45deg)}
-.menuBtn.active span:nth-child(2){opacity:0}
-.menuBtn.active span:nth-child(3){transform:translateY(-10px) rotate(-45deg)}
-.menu{position:fixed;top:0;left:-260px;width:260px;height:100%;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);transition:.4s;padding:80px 30px;z-index:15;display:flex;flex-direction:column;gap:20px}
-.menu.show{left:0}
-.menu button{width:100%;border-radius:.8rem;padding:1rem;font-size:1rem;font-weight:600;text-align:left;background:rgba(255,255,255,.05);color:#fff;box-shadow:none}
-.menu button:hover{background:rgba(255,255,255,.15)}
-.menu button.danger{color:#ef4444;border:1px solid #ef4444;background:transparent}
-.tapIcon{width:70px;height:70px;margin:20px auto 0;position:relative}
-.tapIcon::before,.tapIcon::after{content:"";position:absolute;border:2px solid #38bdf8;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);animation:tapAnim 2.5s infinite ease-in-out}
-.tapIcon::before{width:30px;height:30px;opacity:.8}
-.tapIcon::after{width:50px;height:50px;animation-delay:1.2s;opacity:.4}
-@keyframes tapAnim{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.3)}}
-audio{display:none}
-
-.splash{position:fixed;inset:0;background:linear-gradient(180deg,#1e3a8a,#1e40af,#0f172a);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10}
-.splash h1{font-size:2rem;margin-bottom:1rem}
-.splash button{margin-top:2rem;padding:1.2rem 2.8rem;font-size:1.1rem;border-radius:2rem}
-</style>
-<body>
-<canvas class="bgAnim"></canvas>
-
-<div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div>
-<div class="menu" id="menu">
-  <button id="viewBtn">Ver / Editar Cadastros</button>
-  <button id="clearBtn" class="danger">Excluir Tudo</button>
-</div>
-
-<div class="splash" id="splash">
-  <h1>🔐 NFC Access</h1>
-  <p>Precisamos da sua permissão para acessar o sensor NFC</p>
-  <button id="allowBtn">Iniciar e Permitir Leitura NFC</button>
-</div>
-
-<main style="opacity:0;transition:opacity .6s ease;">
-  <h1>NFC Access</h1>
-  <p id="info">Aproxime seu cartão NFC</p>
-  <div class="tapIcon"></div>
-  <div id="msg"></div>
-</main>
-
-<div class="welcome" id="welcome"><div class="icon"></div><h2 id="welcomeText">Bem-vindo!</h2></div>
-<audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-
-<script>
-(()=>{const $=id=>document.getElementById(id),LS='nfc_users_v1';let reader,msgTimer;
-function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return{}}}
-function save(d){localStorage.setItem(LS,JSON.stringify(d))}
-function showMsg(t,c=''){const e=$('msg');clearTimeout(msgTimer);e.className='show '+c;e.textContent=t;msgTimer=setTimeout(()=>{e.classList.remove('show')},3000)}
-function playSound(){const a=$('beep');a.currentTime=0;a.play().catch(()=>{})}
-function vibrate(ms){if('vibrate'in navigator)navigator.vibrate(ms)}
-function showWelcome(t,err=false){
-  const w=$('welcome'),i=w.querySelector('.icon'),tx=$('welcomeText');
-  w.classList.remove('show'); void w.offsetWidth;
-  i.className=err?'icon err':'icon'; tx.textContent=t; tx.style.color=err?'#ef4444':'#22c55e';
-  w.classList.add('show');
-  setTimeout(()=>{w.classList.remove('show')},1800)
-}
-async function startNFC(){
- if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
- try{
-  reader=new NDEFReader();await reader.scan();showMsg('Aguardando cartão...');
-  reader.onreading=async e=>{
-    const id=e.serialNumber||Math.random().toString(36).slice(2,8);
-    const users=db();
-    if(users[id]){showMsg('Bem-vindo, '+users[id]+'!','ok');playSound();showWelcome('Bem-vindo '+users[id]+'!')}
-    else{
-      vibrate(250);showWelcome('Acesso Negado',true);
-      setTimeout(async()=>{
-        if(confirm('Cartão não encontrado. Deseja cadastrar?')){
-          const nome=prompt('Digite seu nome para cadastro:');
-          if(nome){users[id]=nome;save(users);showMsg(nome+' cadastrado!','ok');showWelcome('Cadastrado!',false);}
-        }
-      },3000);
+    /* === CORRIGIDO: TELA WELCOME FULL ===*/
+    .welcome {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, .7); backdrop-filter: blur(10px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .45s ease; z-index: 9;
+      pointer-events: none; /* Adicionado para não bloquear cliques */
     }
-  };
- }catch(e){showMsg('Erro ou permissão negada','err');}
-}
-$('allowBtn').onclick=async()=>{await startNFC();$('splash').remove();document.querySelector('main').style.opacity=1;}
-$('menuBtn').onclick=()=>{$('menuBtn').classList.toggle('active');$('menu').classList.toggle('show')}
-$('viewBtn').onclick=()=>{const users=db();alert(Object.keys(users).length?Object.entries(users).map(([k,v])=>`${v} (${k})`).join('\n'):'Nenhum cadastro.')};
-$('clearBtn').onclick=()=>{if(confirm('Tem certeza que deseja excluir todos os cadastros?')){localStorage.removeItem(LS);showMsg('Todos os cadastros excluídos','err')}};
+    .welcome.show { opacity: 1 }
 
-// animação fundo
-const c=document.querySelector('.bgAnim'),x=c.getContext('2d');let w,h,particles=[];
-function resize(){w=innerWidth;h=innerHeight;c.width=w;c.height=h}
-window.addEventListener('resize',resize);resize();
-class Particle{constructor(x,y,r){this.x=x;this.y=y;this.r=r;this.baseY=y;}
-update(t){this.y=this.baseY+Math.sin(t/500+this.x/50)*8}
-draw(){x.beginPath();x.arc(this.x,this.y,this.r,0,2*Math.PI);x.fillStyle='rgba(56,189,248,.25)';x.fill()}}
-for(let i=0;i<250;i++)particles.push(new Particle(Math.random()*w,Math.random()*h,Math.random()*2+1));
-function animate(t){x.clearRect(0,0,w,h);for(let p of particles)p.update(t),p.draw();requestAnimationFrame(animate)}
-animate();
-})();
-</script>
+    .icon { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #22c55e; position: relative; animation: popIn .35s ease forwards }
+    .icon::after { content: ""; position: absolute; left: 22px; top: 35px; width: 22px; height: 40px; border-right: 4px solid #22c55e; border-bottom: 4px solid #22c55e; transform: rotate(45deg) scale(0); transform-origin: bottom left; animation: check .45s ease .2s forwards }
+    .icon.err { border-color: #ef4444 }
+    .icon.err::after { left: 28px; top: 25px; width: 30px; height: 30px; border: none; background: linear-gradient(to bottom right, transparent 45%, #ef4444 45%, #ef4444 55%, transparent 55%) }
+
+    @keyframes popIn { from { transform: scale(0); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+    @keyframes check { to { transform: rotate(45deg) scale(1) } }
+
+    .welcome h2 { margin-top: 2.5rem; font-size: 1.6rem; font-weight: 700 }
+
+    .menuBtn { position: fixed; top: 20px; left: 20px; width: 36px; height: 28px; cursor: pointer; z-index: 20 }
+    .menuBtn span { display: block; height: 4px; background: #fff; border-radius: 2px; margin: 6px 0; transition: .4s }
+    .menuBtn.active span:nth-child(1) { transform: translateY(10px) rotate(45deg) }
+    .menuBtn.active span:nth-child(2) { opacity: 0 }
+    .menuBtn.active span:nth-child(3) { transform: translateY(-10px) rotate(-45deg) }
+    .menu { position: fixed; top: 0; left: -260px; width: 260px; height: 100%; background: rgba(0, 0, 0, .8); backdrop-filter: blur(12px); transition: .4s; padding: 80px 30px; z-index: 15; display: flex; flex-direction: column; gap: 20px }
+    .menu.show { left: 0 }
+    .menu button { width: 100%; border-radius: .8rem; padding: 1rem; font-size: 1rem; font-weight: 600; text-align: left; background: rgba(255, 255, 255, .05); color: #fff; box-shadow: none }
+    .menu button:hover { background: rgba(255, 255, 255, .15) }
+    .menu button.danger { color: #ef4444; border: 1px solid #ef4444; background: transparent }
+    .tapIcon { width: 70px; height: 70px; margin: 20px auto 0; position: relative }
+    .tapIcon::before, .tapIcon::after { content: ""; position: absolute; border: 2px solid #38bdf8; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: tapAnim 2.5s infinite ease-in-out }
+    .tapIcon::before { width: 30px; height: 30px; opacity: .8 }
+    .tapIcon::after { width: 50px; height: 50px; animation-delay: 1.2s; opacity: .4 }
+    @keyframes tapAnim { 0%, 100% { transform: translate(-50%, -50%) scale(1) } 50% { transform: translate(-50%, -50%) scale(1.3) } }
+    audio { display: none }
+
+    .splash { position: fixed; inset: 0; background: linear-gradient(180deg, #1e3a8a, #1e40af, #0f172a); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10 }
+    .splash h1 { font-size: 2rem; margin-bottom: 1rem }
+    .splash button { margin-top: 2rem; padding: 1.2rem 2.8rem; font-size: 1.1rem; border-radius: 2rem }
+
+    /* === NOVOS ESTILOS: MODAL DE USUÁRIOS === */
+    .modal {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, .7);
+      backdrop-filter: blur(10px); z-index: 100;
+      display: none; align-items: center; justify-content: center;
+      padding: 20px; transition: opacity 0.3s ease;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: #0f172a; border-radius: 12px; padding: 25px;
+      width: 100%; max-width: 600px; max-height: 90vh;
+      overflow-y: auto; text-align: left; position: relative;
+      border: 1px solid #3b82f6;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+    }
+    .modal-content h2 { margin-bottom: 20px; color: #fff; }
+    .close-btn {
+      position: absolute; top: 15px; right: 20px;
+      font-size: 2rem; color: #9ca3af; cursor: pointer;
+      line-height: 1; transition: color 0.2s;
+    }
+    .close-btn:hover { color: #fff; }
+    #userList { display: flex; flex-direction: column; gap: 12px; }
+    .user-item {
+      background: rgba(255, 255, 255, .05); border-radius: 8px;
+      padding: 15px; border-left: 4px solid #3b82f6;
+    }
+    .user-item h3 { font-size: 1.1rem; color: #06b6d4; margin-bottom: 8px; font-weight: 600; }
+    .user-item p { font-size: 0.9rem; color: #9ca3af; margin-bottom: 5px; }
+    .user-item p strong { color: #e5e7eb; }
+    .user-item code {
+      font-size: 0.8rem; background: #020617;
+      padding: 3px 6px; border-radius: 4px;
+      color: #9ca3af; user-select: all;
+    }
+    .user-item .actions { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .user-item .actions button {
+      padding: 8px 12px; font-size: 0.9rem; border-radius: 8px;
+      background: rgba(255, 255, 255, .1);
+      box-shadow: none; font-weight: 600;
+    }
+    .user-item .actions .edit-btn { color: #3b82f6; }
+    .user-item .actions .del-btn { color: #ef4444; }
+    .user-item .history {
+      margin-top: 10px; border-top: 1px solid #334155; padding-top: 10px;
+    }
+    .user-item .history h4 { font-size: 0.9rem; margin-bottom: 5px; color: #ccc; }
+    .user-item .history ul {
+      list-style: none; padding-left: 0; max-height: 150px;
+      overflow-y: auto; background: rgba(0, 0, 0, 0.2); border-radius: 4px; padding: 8px;
+    }
+    .user-item .history li { font-size: 0.85rem; color: #9ca3af; margin-bottom: 4px; }
+    #noUsers { color: #9ca3af; }
+  </style>
+</head>
+
+<body>
+  <canvas class="bgAnim"></canvas>
+
+  <div class="menuBtn" id="menuBtn"><span></span><span></span><span></span></div>
+  <div class="menu" id="menu">
+    <button id="viewBtn">Ver / Editar Cadastros</button>
+    <button id="clearBtn" class="danger">Excluir Tudo</button>
+  </div>
+
+  <div class="splash" id="splash">
+    <h1>🔐 NFC Access</h1>
+    <p>Precisamos da sua permissão para acessar o sensor NFC</p>
+    <button id="allowBtn">Iniciar e Permitir Leitura NFC</button>
+  </div>
+
+  <main style="opacity:0;transition:opacity .6s ease;">
+    <h1>NFC Access</h1>
+    <p id="info">Aproxime seu cartão NFC</p>
+    <div class="tapIcon"></div>
+    <div id="msg"></div>
+  </main>
+
+  <div class="welcome" id="welcome">
+    <div class="icon"></div>
+    <h2 id="welcomeText">Bem-vindo!</h2>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h2>Usuários Cadastrados</h2>
+      <div id="userList">
+        </div>
+    </div>
+  </div>
+
+  <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
+  <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+      const LS = 'nfc_users_v2'; // Chave atualizada para nova estrutura
+      let reader, msgTimer;
+
+      function db() {
+        try {
+          return JSON.parse(localStorage.getItem(LS) || '{}')
+        } catch {
+          return {}
+        }
+      }
+
+      function save(d) {
+        localStorage.setItem(LS, JSON.stringify(d))
+      }
+
+      function showMsg(t, c = '') {
+        const e = $('msg');
+        clearTimeout(msgTimer);
+        e.className = 'show ' + c;
+        e.textContent = t;
+        msgTimer = setTimeout(() => { e.classList.remove('show') }, 3000)
+      }
+
+      function playSound() {
+        const a = $('beep');
+        a.currentTime = 0;
+        a.play().catch(() => {})
+      }
+
+      function vibrate(ms) {
+        if ('vibrate' in navigator) navigator.vibrate(ms)
+      }
+
+      function showWelcome(t, err = false) {
+        const w = $('welcome'),
+          i = w.querySelector('.icon'),
+          tx = $('welcomeText');
+        w.classList.remove('show');
+        void w.offsetWidth;
+        i.className = err ? 'icon err' : 'icon';
+        tx.textContent = t;
+        tx.style.color = err ? '#ef4444' : '#22c55e';
+        w.classList.add('show');
+        setTimeout(() => { w.classList.remove('show') }, 1800)
+      }
+
+      /**
+       * Formata uma string ISO de data para o formato local (pt-BR).
+       */
+      function formatDate(isoString) {
+        if (!isoString) return 'Nenhum';
+        try {
+          return new Date(isoString).toLocaleString('pt-BR', {
+            dateStyle: 'short',
+            timeStyle: 'medium'
+          });
+        } catch (e) {
+          return 'Data inválida';
+        }
+      }
+
+      /**
+       * Garante que o dado do usuário esteja no formato novo.
+       * Migra dados do formato antigo (string) para o novo (objeto).
+       */
+      function getUserData(data) {
+        if (typeof data === 'string') {
+          // Formato antigo: "Nome do Usuário"
+          return { name: data, lastAccess: null, accessHistory: [] };
+        }
+        // Novo formato: { name, lastAccess, accessHistory }
+        return {
+          name: data.name || 'Nome Inválido',
+          lastAccess: data.lastAccess || null,
+          accessHistory: data.accessHistory || []
+        };
+      }
+
+      /**
+       * Atualiza e exibe a lista de usuários no modal.
+       */
+      function showUserList() {
+        const users = db();
+        const userListEl = $('userList');
+        userListEl.innerHTML = ''; // Limpa a lista
+        const userIds = Object.keys(users);
+
+        if (userIds.length === 0) {
+          userListEl.innerHTML = '<p id="noUsers">Nenhum usuário cadastrado.</p>';
+          return;
+        }
+
+        userIds.forEach(id => {
+          const user = getUserData(users[id]); // Garante o formato correto
+          
+          // Gera a lista de histórico, invertida (mais recente primeiro)
+          const historyItems = user.accessHistory.length ?
+            user.accessHistory
+              .map(date => `<li>${formatDate(date)}</li>`)
+              .reverse() // Mais recente no topo
+              .join('') :
+            '<li>Nenhum acesso registrado.</li>';
+
+          const userItemHTML = `
+            <div class="user-item">
+              <h3>${user.name}</h3>
+              <p>ID do Cartão: <code>${id}</code></p>
+              <p>Último Acesso: <strong>${formatDate(user.lastAccess)}</strong></p>
+              
+              <div class="history">
+                <h4>Histórico de Acessos (${user.accessHistory.length}):</h4>
+                <ul>${historyItems}</ul>
+              </div>
+
+              <div class="actions">
+                <button class="edit-btn" data-id="${id}">Editar Nome</button>
+                <button class="del-btn" data-id="${id}">Excluir Usuário</button>
+              </div>
+            </div>
+          `;
+          userListEl.innerHTML += userItemHTML;
+        });
+      }
+
+      async function startNFC() {
+        if (!('NDEFReader' in window)) {
+          showMsg('NFC não suportado neste dispositivo', 'err');
+          return;
+        }
+        try {
+          reader = new NDEFReader();
+          await reader.scan();
+          showMsg('Aguardando cartão...');
+
+          reader.onreading = async e => {
+            const id = e.serialNumber || `emulado-${Math.random().toString(36).slice(2, 8)}`;
+            const users = db();
+            const now = new Date().toISOString(); // Pega a data e hora atual
+
+            if (users[id]) {
+              // --- USUÁRIO ENCONTRADO ---
+              const user = getUserData(users[id]); // Pega dados no formato novo
+
+              // Atualiza os dados de acesso
+              user.lastAccess = now;
+              user.accessHistory.push(now);
+              users[id] = user; // Salva o objeto atualizado
+              save(users);
+
+              showMsg('Bem-vindo, ' + user.name + '!', 'ok');
+              playSound();
+              showWelcome('Bem-vindo ' + user.name + '!');
+
+            } else {
+              // --- USUÁRIO NÃO ENCONTRADO ---
+              vibrate(250);
+              showWelcome('Acesso Negado', true);
+              
+              setTimeout(async () => {
+                if (confirm('Cartão não encontrado. Deseja cadastrar?')) {
+                  const nome = prompt('Digite seu nome para cadastro:');
+                  if (nome) {
+                    // Salva no novo formato
+                    users[id] = {
+                      name: nome,
+                      lastAccess: null, // Nenhum acesso ainda
+                      accessHistory: [] // Histórico vazio
+                    };
+                    save(users);
+                    showMsg(nome + ' cadastrado!', 'ok');
+                    showWelcome('Cadastrado!', false);
+                  }
+                }
+              }, 3000); // Atraso para permitir ler a msg "Acesso Negado"
+            }
+          };
+        } catch (e) {
+          console.error(e);
+          showMsg('Erro ou permissão negada', 'err');
+        }
+      }
+
+      // --- INICIALIZAÇÃO E EVENT LISTENERS ---
+
+      // Botão de Iniciar (Splash)
+      $('allowBtn').onclick = async () => {
+        await startNFC();
+        $('splash').remove();
+        document.querySelector('main').style.opacity = 1;
+      }
+
+      // Botão do Menu Hamburguer
+      $('menuBtn').onclick = () => {
+        $('menuBtn').classList.toggle('active');
+        $('menu').classList.toggle('show');
+      }
+
+      // Botão Ver / Editar Cadastros (MENU)
+      $('viewBtn').onclick = () => {
+        showUserList(); // Gera a lista atualizada
+        $('modal').classList.add('show');
+        // Fecha o menu lateral ao abrir o modal
+        $('menu').classList.remove('show');
+        $('menuBtn').classList.remove('active');
+      };
+
+      // Botão Excluir Tudo (MENU)
+      $('clearBtn').onclick = () => {
+        if (confirm('Tem certeza que deseja excluir TODOS os cadastros? Esta ação não pode ser desfeita.')) {
+          localStorage.removeItem(LS);
+          showMsg('Todos os cadastros excluídos', 'err');
+          if ($('modal').classList.contains('show')) {
+            showUserList(); // Atualiza a lista no modal (que agora estará vazia)
+          }
+        }
+      };
+
+      // --- LISTENERS DO MODAL ---
+
+      // Fechar modal no 'X'
+      $('closeModal').onclick = () => {
+        $('modal').classList.remove('show');
+      };
+
+      // Fechar modal clicando fora
+      $('modal').onclick = (e) => {
+        if (e.target === $('modal')) {
+          $('modal').classList.remove('show');
+        }
+      };
+
+      // Ações de Editar e Excluir (Delegação de Eventos)
+      $('userList').onclick = (e) => {
+        const target = e.target;
+        
+        // --- Ação de Editar ---
+        if (target.classList.contains('edit-btn')) {
+          const id = target.dataset.id;
+          const users = db();
+          const user = getUserData(users[id]);
+          
+          const newName = prompt('Digite o novo nome para ' + user.name + ':', user.name);
+          
+          if (newName && newName.trim() !== '' && newName !== user.name) {
+            user.name = newName.trim(); // Atualiza só o nome
+            users[id] = user; // Salva o objeto inteiro de volta
+            save(users);
+            showUserList(); // Atualiza a lista
+            showMsg('Nome atualizado!', 'ok');
+          }
+        }
+
+        // --- Ação de Excluir ---
+        if (target.classList.contains('del-btn')) {
+          const id = target.dataset.id;
+          const users = db();
+          const user = getUserData(users[id]);
+
+          if (confirm(`Tem certeza que deseja excluir o usuário ${user.name} (${id})?`)) {
+            delete users[id]; // Remove o usuário do objeto
+            save(users);
+            showUserList(); // Atualiza a lista
+            showMsg('Usuário excluído', 'err');
+          }
+        }
+      };
+
+
+      // --- Animação de Fundo (Original) ---
+      const c = document.querySelector('.bgAnim'),
+        x = c.getContext('2d');
+      let w, h, particles = [];
+
+      function resize() {
+        w = innerWidth;
+        h = innerHeight;
+        c.width = w;
+        c.height = h
+      }
+      window.addEventListener('resize', resize);
+      resize();
+      class Particle {
+        constructor(x, y, r) {
+          this.x = x;
+          this.y = y;
+          this.r = r;
+          this.baseY = y;
+        }
+        update(t) { this.y = this.baseY + Math.sin(t / 500 + this.x / 50) * 8 }
+        draw() {
+          x.beginPath();
+          x.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+          x.fillStyle = 'rgba(56,189,248,.25)';
+          x.fill()
+        }
+      }
+      for (let i = 0; i < 250; i++) particles.push(new Particle(Math.random() * w, Math.random() * h, Math.random() * 2 + 1));
+
+      function animate(t) {
+        x.clearRect(0, 0, w, h);
+        for (let p of particles) p.update(t), p.draw();
+        requestAnimationFrame(animate)
+      }
+      animate();
+    })();
+  </script>
 </body>
 </html>
-
-
