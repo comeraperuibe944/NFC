@@ -1,32 +1,21 @@
-<!doctype html><html lang="pt-BR"><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NFC Access</title>
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NFC Access</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Inter",system-ui,Arial,sans-serif}
 body{height:100vh;background:#020617;color:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
-
-/* Fundo nanotecnologia */
-.bg{position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 30% 30%,#0f172a,#000);overflow:hidden}
+.bg{position:fixed;inset:0;z-index:-2;background:radial-gradient(circle at 30% 30%,#0f172a,#000)}
 .grid{position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;animation:gridMove 10s linear infinite}
-@keyframes gridMove{0%{background-position:0 0,0 0}100%{background-position:40px 40px,40px 40px}}
-
-/* Feixe de luz */
-.beam{position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(115deg,transparent 45%,rgba(0,242,255,.08) 50%,transparent 55%);animation:beamMove 6s ease-in-out infinite;z-index:-1;transform:rotate(0deg)}
-@keyframes beamMove{0%,100%{transform:translateX(-30%) translateY(-30%) rotate(25deg)}50%{transform:translateX(30%) translateY(30%) rotate(25deg)}}
-
-/* Título e botões */
-h1{font-size:1.8rem;margin-bottom:.5rem;letter-spacing:.05em}
+@keyframes gridMove{to{background-position:40px 40px,40px 40px}}
+.beam{position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(115deg,transparent 45%,rgba(0,242,255,.08) 50%,transparent 55%);animation:beamMove 6s ease-in-out infinite;z-index:-1}
+@keyframes beamMove{0%,100%{transform:translate(-30%,-30%) rotate(25deg)}50%{transform:translate(30%,30%) rotate(25deg)}}
+h1{font-size:1.8rem;margin-bottom:.5rem}
 p{color:#9ca3af;font-size:.95rem;margin-bottom:1.8rem}
-button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 6px 25px rgba(59,130,246,.35);touch-action:manipulation}
+button{background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:none;border-radius:1.5rem;padding:1.2rem 2.5rem;font-size:1rem;font-weight:700;cursor:pointer;transition:.3s;box-shadow:0 6px 25px rgba(59,130,246,.35)}
 button:active{transform:scale(.96)}
-#modeBtn{margin-top:1rem;background:linear-gradient(90deg,#22c55e,#15803d)}
 #msg{margin-top:2rem;min-height:2.5rem;font-size:1.2rem;font-weight:600;opacity:0;transition:opacity 1s ease,transform .6s ease}
 #msg.show{opacity:1;transform:scale(1.05)}
 .ok{color:#22c55e;animation:pulse 1.2s infinite alternate}
 .err{color:#ef4444}
 @keyframes pulse{to{transform:scale(1.08);opacity:.8}}
-
-/* Splash Screen */
 .splash{position:fixed;inset:0;background:linear-gradient(180deg,#1e3a8a,#1e40af,#0f172a);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;z-index:10;animation:fadeIn .8s ease}
 .splash h1{font-size:2rem;margin-bottom:1rem}
 .splash button{margin-top:2rem;padding:1.2rem 2.8rem;font-size:1.1rem;border-radius:2rem;background:linear-gradient(90deg,#06b6d4,#3b82f6);animation:pulseBtn 2s infinite alternate}
@@ -35,172 +24,59 @@ button:active{transform:scale(.96)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
 @keyframes fadeOut{to{opacity:0;transform:scale(1.05)}}
-
-/* Tela de boas-vindas */
 .welcome{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.9);transition:all .6s ease;z-index:9;pointer-events:none}
 .welcome.show{opacity:1;transform:scale(1)}
 .icon{width:90px;height:90px;border-radius:50%;border:4px solid #22c55e;position:relative;animation:popIn .5s ease forwards}
 .icon::after{content:"";position:absolute;left:22px;top:35px;width:22px;height:40px;border-right:4px solid #22c55e;border-bottom:4px solid #22c55e;transform:rotate(45deg) scale(0);transform-origin:bottom left;animation:check .5s ease .3s forwards}
 .icon.err{border-color:#ef4444}
-.icon.err::after{content:"";left:28px;top:25px;width:30px;height:30px;border:none;transform:rotate(45deg);background:linear-gradient(to bottom right,transparent 45%,#ef4444 45%,#ef4444 55%,transparent 55%)}
+.icon.err::after{left:28px;top:25px;width:30px;height:30px;border:none;transform:rotate(45deg);background:linear-gradient(to bottom right,transparent 45%,#ef4444 45%,#ef4444 55%,transparent 55%)}
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes check{to{transform:rotate(45deg) scale(1)}}
 .welcome h2{margin-top:2.5rem;font-size:1.6rem;font-weight:700}
-
-/* Animação de brilho */
 .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.08) 50%,transparent 100%);animation:shine 10s linear infinite;mix-blend-mode:overlay}
-@keyframes shine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-
+@keyframes shine{to{transform:translateX(100%)}}
 audio{display:none}
 </style>
-
 <body>
 <div class="bg"><div class="grid"></div><div class="beam"></div></div>
-
-<!-- Splash -->
-<div class="splash" id="splash">
-  <div class="wave"></div>
-  <h1>🔐 NFC Access</h1>
-  <p>Precisamos da sua permissão para acessar o sensor NFC</p>
-  <button id="allowBtn">Iniciar e Permitir Leitura NFC</button>
-</div>
-
-<!-- Conteúdo principal -->
+<div class="splash" id="splash"><div class="wave"></div><h1>🔐 NFC Access</h1><p>Precisamos da sua permissão para acessar o sensor NFC</p><button id="allowBtn">Iniciar e Permitir Leitura NFC</button></div>
 <main style="opacity:0;transition:opacity .6s ease;">
   <h1>🔐 NFC Access</h1>
   <p id="info">Aproxime seu cartão NFC</p>
-  <button id="modeBtn">Modo: Acesso</button>
   <div id="msg"></div>
 </main>
-
-<!-- Tela de boas-vindas -->
-<div class="welcome" id="welcome">
-  <div class="icon"></div>
-  <h2 id="welcomeText">Bem-vindo!</h2>
-</div>
-
-<!-- Som -->
+<div class="welcome" id="welcome"><div class="icon"></div><h2 id="welcomeText">Bem-vindo!</h2></div>
 <audio id="beep" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-
 <script>
-(()=>{const $=id=>document.getElementById(id);
-let mode='acesso',reader,msgTimer;
-const LS='nfc_users_v1';
-function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
+(()=>{const $=id=>document.getElementById(id);const LS='nfc_users_v1';
+let reader,msgTimer;
+function db(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return{}}}
 function save(d){localStorage.setItem(LS,JSON.stringify(d))}
-
-// LOGS com fade out suave após 6s + fade 1s
-function showMsg(txt, cls = '') {
-  const el = $('msg');
-  clearTimeout(msgTimer);
-
-  // Reset imediato para garantir que qualquer fade anterior não interfira
-  el.style.transition = 'none';
-  el.style.opacity = '0';
-  el.offsetHeight; // força reflow (importante!)
-
-  // Mostra o texto com efeito suave
-  el.className = 'show ' + cls;
-  el.textContent = txt;
-  el.style.transition = 'opacity 0.5s ease, transform 0.6s ease';
-  el.style.opacity = '1';
-  el.style.transform = 'scale(1.05)';
-
-  // Mantém visível por 6s antes de começar o fade-out
-  msgTimer = setTimeout(() => {
-    el.style.transition = 'opacity 1.2s ease';
-    el.style.opacity = '0';
-    setTimeout(() => {
-      el.className = '';
-      el.textContent = '';
-      el.style.transition = '';
-      el.style.transform = '';
-    }, 1200);
-  }, 6000);
-}
-
-function playSound(id){const a=$(id);a.currentTime=0;a.play().catch(()=>{})}
-function vibrate(ms){if('vibrate'in navigator)navigator.vibrate(ms);}
-
-function showWelcome(txt, isError = false) {
-  const w = $('welcome'),
-        icon = w.querySelector('.icon'),
-        text = $('welcomeText');
-
-  // Define o estado inicial
-  icon.className = isError ? 'icon err' : 'icon';
-  text.textContent = txt;
-  text.style.color = isError ? '#ef4444' : '#22c55e';
-
-  // Força reflow e inicia o fade-in
-  w.style.transition = 'none';
-  w.style.opacity = '0';
-  w.style.transform = 'scale(.9)';
-  w.offsetHeight; // força reflow
-
-  w.classList.add('show');
-  w.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-  w.style.opacity = '1';
-  w.style.transform = 'scale(1)';
-
-  // Mantém visível e depois aplica fade-out suave
-  setTimeout(() => {
-    w.style.transition = 'opacity 0.8s ease';
-    w.style.opacity = '0';
-    setTimeout(() => {
-      w.classList.remove('show');
-      w.style.transition = '';
-      w.style.transform = 'scale(.9)';
-    }, 800);
-  }, 2500);
-}
-
-
-// alternar modo
-function toggleMode(){
-  mode=mode==='acesso'?'cadastro':'acesso';
-  $('modeBtn').textContent='Modo: '+(mode==='acesso'?'Acesso':'Cadastro');
-  showMsg('Modo alterado para '+mode);
-}
-$('modeBtn').addEventListener('click',toggleMode);
-
-// leitura NFC
+function showMsg(t,c=''){const e=$('msg');clearTimeout(msgTimer);e.style.transition='none';e.style.opacity='0';e.offsetHeight;e.className='show '+c;e.textContent=t;e.style.transition='opacity .5s ease,transform .6s ease';e.style.opacity='1';e.style.transform='scale(1.05)';msgTimer=setTimeout(()=>{e.style.transition='opacity 1.2s ease';e.style.opacity='0';setTimeout(()=>{e.className='';e.textContent='';},1200)},6000)}
+function playSound(){const a=$('beep');a.currentTime=0;a.play().catch(()=>{})}
+function vibrate(ms){if('vibrate'in navigator)navigator.vibrate(ms)}
+function showWelcome(t,err=false){const w=$('welcome'),i=w.querySelector('.icon'),tx=$('welcomeText');i.className=err?'icon err':'icon';tx.textContent=t;tx.style.color=err?'#ef4444':'#22c55e';w.style.transition='none';w.style.opacity='0';w.offsetHeight;w.classList.add('show');w.style.transition='opacity .6s ease';w.style.opacity='1';setTimeout(()=>{w.style.opacity='0';setTimeout(()=>w.classList.remove('show'),800)},2500)}
 async function startNFC(){
-  if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
-  try{
-    reader=new NDEFReader();await reader.scan();
-    $('info').textContent='Aproxime o cartão...';showMsg('Aguardando cartão...');
-    reader.onreading=async e=>{
-      const id=e.serialNumber||Math.random().toString(36).slice(2,8);
-      const users=db();
-      if(mode==='cadastro'){
-        const nome=prompt('Nome para cadastrar?');
-        if(!nome){showMsg('Cancelado','err');return;}
-        users[id]=nome;save(users);
-        showMsg('✅ '+nome+' cadastrado!','ok');
-        showWelcome('Cadastrado!',false);
-      }else{
-        if(users[id]){
-          showMsg('✅ Bem-vindo, '+users[id]+'!','ok');
-          playSound('beep');showWelcome('Bem-vindo '+users[id]+'!');
-        }else{
-          showMsg('⛔ Acesso negado','err');
-          vibrate(250);
-          showWelcome('Acesso Negado',true);
+ if(!('NDEFReader'in window)){showMsg('NFC não suportado','err');return;}
+ try{
+  reader=new NDEFReader();await reader.scan();showMsg('Aguardando cartão...');
+  reader.onreading=async e=>{
+    const id=e.serialNumber||Math.random().toString(36).slice(2,8);
+    const users=db();
+    if(users[id]){showMsg('✅ Bem-vindo, '+users[id]+'!','ok');playSound();showWelcome('Bem-vindo '+users[id]+'!')}
+    else{
+      showMsg('⛔ Cartão não cadastrado','err');vibrate(250);showWelcome('Acesso Negado',true);
+      setTimeout(async()=>{
+        if(confirm('Cartão não encontrado. Deseja cadastrar este cartão?')){
+          const nome=prompt('Digite seu nome para cadastro:');
+          if(nome){users[id]=nome;save(users);showMsg('✅ '+nome+' cadastrado!','ok');showWelcome('Cadastrado!',false);}
         }
-      }
-    };
-  }catch(err){showMsg('Erro ou permissão negada','err');console.error(err);}
+      },3000);
+    }
+  };
+ }catch(e){showMsg('Erro ou permissão negada','err');console.error(e);}
 }
-
-$('allowBtn').onclick=()=>{
-  $('allowBtn').disabled=true;$('allowBtn').style.opacity='.5';
-  setTimeout(async ()=>{
-    await startNFC();
-    $('splash').style.animation='fadeOut .5s forwards';
-    setTimeout(()=>{$('splash').remove();document.querySelector('main').style.opacity=1;},500);
-  },200);
-};
+$('allowBtn').onclick=async()=>{$('allowBtn').disabled=true;$('allowBtn').style.opacity='.5';setTimeout(async()=>{await startNFC();$('splash').style.animation='fadeOut .5s forwards';setTimeout(()=>{$('splash').remove();document.querySelector('main').style.opacity=1;},500)},200)};
 })();
 </script>
 </body></html>
